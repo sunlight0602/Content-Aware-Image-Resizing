@@ -42,7 +42,7 @@ def SobelEnergy(inputImage):
     result = np.hypot(imx, imy)  # magnitude
     result *= 255.0 / np.max(result) # normalize
     
-    plotProcess(imx, imy, result)
+    #plotProcess(imx, imy, result)
 
     return result
 
