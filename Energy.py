@@ -4,6 +4,7 @@ from PIL import Image
 from scipy.ndimage import filters
 import cv2
 import math
+from mpl_toolkits import mplot3d
 
 def SobelEnergy(inputImage):
     
@@ -113,6 +114,14 @@ def LAB_func(t):
     
     return t
 
+def L_func(Y, Yn):
+    if Y/Yn > 0.008856:
+        L = 116 * math.pow(Y/Yn, 1/3) - 16
+    else:
+        L = 903.3 * (Y/Yn)
+    
+    return L
+
 def RGBHistogram(img):
 
     # 畫出 RGB 三種顏色的分佈圖
@@ -125,21 +134,33 @@ def RGBHistogram(img):
         
     return
 
-def L_func(Y, Yn):
-    if Y/Yn > 0.008856:
-        L = 116 * math.pow(Y/Yn, 1/3) - 16
-    else:
-        L = 903.3 * (Y/Yn)
+def plotRGBSpace(img):
     
-    return L
+    ax = plt.axes(projection="3d")
+    
+    R_points = [ img[i][j][0] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
+    G_points = [ img[i][j][1] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
+    B_points = [ img[i][j][2] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
+    
+    ax.scatter3D(R_points, G_points, B_points, c='r')
+    
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    plt.show()
+    
+    return
 
 if __name__ == "__main__":
     #pli_img = Image.open("./image/pika.png")
     #sobelEng = SobelEnergy(pli_img)
     
-    img = cv2.imread('./image/pika.png')
-    RGBHistogram(img)
+    #img = cv2.imread('./image/pika.png')
+    #RGBHistogram(img)
+    
+    #img = cv2.imread('./image/pika.png')
+    #img_LAB = RGBtoLAB(img)
     
     img = cv2.imread('./image/pika.png')
-    img_LAB = RGBtoLAB(img)
+    plotRGBSpace(img)
     
