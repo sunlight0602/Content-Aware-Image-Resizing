@@ -138,11 +138,16 @@ def plotRGBSpace(img):
     
     ax = plt.axes(projection="3d")
     
-    R_points = [ img[i][j][0] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
+    R_points = [ img[i][j][2] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
     G_points = [ img[i][j][1] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
-    B_points = [ img[i][j][2] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
+    B_points = [ img[i][j][0] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
     
-    ax.scatter3D(R_points, G_points, B_points, c='r')
+    ax.scatter3D(R_points, G_points, B_points, color='r')
+    ax.scatter3D(255, 255, 255, c='white')
+    ax.scatter3D(0, 0, 0, c='black')
+    ax.scatter3D(255, 255, 0, c='yellow')
+    ax.scatter3D(0, 0, 255, c='blue')
+    ax.scatter3D(255, 0, 0, c='red')
     
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -161,6 +166,13 @@ if __name__ == "__main__":
     #img = cv2.imread('./image/pika.png')
     #img_LAB = RGBtoLAB(img)
     
-    img = cv2.imread('./image/pika.png')
+    img = cv2.imread('./image/pika2.png')
     plotRGBSpace(img)
+    
+    classes = int(math.pow(255/51, 3))
+    
+    if 0<R<51 and 0<G<51 and 0<B<51:
+        classes[0]
+    else if 
+    
     
