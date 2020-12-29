@@ -106,12 +106,24 @@ def RGBtoLAB(img):
     return img_LAB
 
 def LAB_func(t):
-    if t>0.008856:
+    if t > 0.008856:
         t = math.pow(t, 1/3)
     else:
         t = 7.787 * t + (16/116)
     
     return t
+
+def RGBHistogram(img):
+
+    # 畫出 RGB 三種顏色的分佈圖
+    color = ('b','g','r')
+    for i, col in enumerate(color):
+        histr = cv2.calcHist([img],[i],None,[256],[0, 256])
+        plt.plot(histr, color = col)
+        plt.xlim([0, 256])
+    plt.show()
+        
+    return
 
 def L_func(Y, Yn):
     if Y/Yn > 0.008856:
@@ -124,6 +136,9 @@ def L_func(Y, Yn):
 if __name__ == "__main__":
     #pli_img = Image.open("./image/pika.png")
     #sobelEng = SobelEnergy(pli_img)
+    
+    img = cv2.imread('./image/pika.png')
+    RGBHistogram(img)
     
     img = cv2.imread('./image/pika.png')
     img_LAB = RGBtoLAB(img)
