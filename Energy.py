@@ -68,6 +68,9 @@ def plotProcess(imx, imy, energy):
     return
     
 def RGBtoLAB(img):
+    """
+    Turn RGB color space to CIELAB space.
+    """
     img = img/255.0
     
     CIE_XYZ = [[0.412453, 0.357580, 0.180423],\
@@ -124,8 +127,10 @@ def L_func(Y, Yn):
     return L
 
 def RGBHistogram(img):
+    """
+    Plot histogram of RGB values.
+    """
 
-    # 畫出 RGB 三種顏色的分佈圖
     color = ('b','g','r')
     for i, col in enumerate(color):
         histr = cv2.calcHist([img],[i],None,[256],[0, 256])
@@ -136,6 +141,9 @@ def RGBHistogram(img):
     return
 
 def plotRGBSpace(img):
+    """
+    Plot 3d RGB color space.
+    """
     
     ax = plt.axes(projection="3d")
     
@@ -158,6 +166,19 @@ def plotRGBSpace(img):
     return
 
 def colorClassify(img):
+    """
+    Parameters
+    ----------
+    img : input image, 3d in RGB color space
+
+    Returns
+    -------
+    color_dict : dict
+        key has 3 digits, representing R,G,B value respectively
+        digits range from 0~5, calculated by floor(value/51)
+        
+        value is the # of pixels of the color class
+    """
     
     color_dict = defaultdict(int) # 0,1,2,3,4,5
     
