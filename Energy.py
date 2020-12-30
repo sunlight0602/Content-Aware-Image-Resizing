@@ -249,24 +249,24 @@ def colorEnergy(img):
     return img_new
 
 if __name__ == "__main__":
-    pli_img = Image.open("./image/pika2.png")
+    pli_img = Image.open("./image/castle.jpg")
     sobelEng = SobelEnergy(pli_img)
     plt.imshow(sobelEng, cmap="gray")
     plt.show()
     
-    #img = cv2.imread('./image/pika.png')
-    #RGBHistogram(img)
+    # img = cv2.imread('./image/pika.png')
+    # RGBHistogram(img)
     
-    #img = cv2.imread('./image/pika.png')
-    #img_LAB = RGBtoLAB(img)
+    # img = cv2.imread('./image/pika.png')
+    # img_LAB = RGBtoLAB(img)
     
-    img = cv2.imread('./image/pika2.png')
+    img = cv2.imread('./image/castle.jpg')
     plotRGBSpace(img)
     
-    img = cv2.imread('./image/pika2.png')
-    color_freq, color_importance = colorClassify(img)
+    # img = cv2.imread('./image/pika2.png')
+    # color_freq, color_importance = colorClassify(img)
     
-    img = cv2.imread('./image/pika2.png')
+    img = cv2.imread('./image/castle.jpg')
     color_energy = colorEnergy(img)
     plt.imshow(color_energy, cmap="gray")
     plt.show()

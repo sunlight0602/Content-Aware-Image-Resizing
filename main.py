@@ -16,10 +16,15 @@ import matplotlib.pyplot as plt
 from tqdm import trange
 
 from Energy import SobelEnergy
+from Energy import colorEnergy
 
-def minimum_seam(img):
+def minimum_seam(img, map_type):
     r, c, _ = img.shape
-    energy_map = SobelEnergy(img)
+    
+    if map_type=='sobel':
+        energy_map = SobelEnergy(img)
+    elif map_type=='color':
+        energy_map = colorEnergy(img)
 
     M = energy_map.copy()
     backtrack = np.zeros_like(M, dtype=np.int)
@@ -40,10 +45,10 @@ def minimum_seam(img):
 
     return M, backtrack
 
-def carve_column(img):
+def carve_column(img, map_type):
     r, c, _ = img.shape
 
-    M, backtrack = minimum_seam(img)
+    M, backtrack = minimum_seam(img, map_type)
 
     # 创建一个(r,c)矩阵，填充值为True
     # 后面会从值为False的图像中移除所有像素
@@ -66,19 +71,19 @@ def carve_column(img):
 
     return img
 
-def crop_c(img, scale_c):
+def crop_c(img, scale_c, map_type):
     r, c, _ = img.shape
     new_c = int(scale_c * c)
 
     for i in trange(c - new_c): # use range if you don't want to use tqdm
-        img = carve_column(img)
+        img = carve_column(img, map_type)
 
     return img
 
 if __name__=='__main__':
     
     # Read image
-    img = cv2.imread('./image/pika.png')
+    img = cv2.imread('./image/pika4.jpg')
     if img is None:
         sys.exit("no img")
     
@@ -86,9 +91,11 @@ if __name__=='__main__':
     plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     plt.show()
     
-    # Carve
-    c_img = crop_c(img, 0.95)
+    # Carve and show
+    c_img1 = crop_c(img, 0.8, 'sobel')
+    plt.imshow(cv2.cvtColor(c_img1, cv2.COLOR_BGR2RGB))
+    plt.show()
     
-    # Show carved image
-    plt.imshow(cv2.cvtColor(c_img, cv2.COLOR_BGR2RGB))
+    c_img2 = crop_c(img, 0.8, 'color')
+    plt.imshow(cv2.cvtColor(c_img2, cv2.COLOR_BGR2RGB))
     plt.show()
