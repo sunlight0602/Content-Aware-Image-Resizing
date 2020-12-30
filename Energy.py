@@ -180,7 +180,8 @@ def colorClassify(img):
         value is the # of pixels of the color class
     """
     
-    color_dict = defaultdict(int) # 0,1,2,3,4,5
+    # Classify
+    color_freq = defaultdict(int) # 0,1,2,3,4,5
     
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
@@ -190,13 +191,68 @@ def colorClassify(img):
             val_B = int(img[i][j][0] / 51)
             class_num = str(val_R) + str(val_G) + str(val_B)
             
-            color_dict[class_num] += 1
+            color_freq[class_num] += 1
+            
+    # Importance
+    # total_pixel = sum(color_freq.values())
+    # importance = [ [k, v/total_pixel] for k,v in color_freq.items() ]
+    # importance.sort(key = lambda x: x[1])
+    # keys = [ e[0] for e in importance ]
+    # values = [ e[1] for e in importance ]
+    # values.reverse()
+    
+    # importance = [ [keys[i], values[i]] for i in range(len(keys)) ]
+    
+    # num = 255/importance[0][1]
+    # for i, _ in enumerate(importance):
+    #     importance[i][1] = importance[i][1] * num
+        
+    # color_importance = defaultdict(int)
+    # for ele in importance:
+    #     color_importance[ele[0]] = ele[1]
+    
+    total_pixel = sum(color_freq.values())
+    importance = [ [k, v/total_pixel] for k,v in color_freq.items() ]
+    importance.sort(key = lambda x: x[1])
+    keys = [ e[0] for e in importance ]
+    values = [ e[1] for e in importance ]
+    
+    importance = [ [keys[i], len(keys)-i] for i in range(len(keys)) ]
 
-    return color_dict
+    num = 255/importance[0][1]
+    for i, _ in enumerate(importance):
+        importance[i][1] = importance[i][1] * num
+        
+    color_importance = defaultdict(int)
+    for ele in importance:
+        color_importance[ele[0]] = ele[1]
+    
+    return color_freq, color_importance
+
+def colorEnergy(img):
+    """
+    Color classes with highest frequency indicates lowest energy, vice versa.
+    """
+    _, color_importance = colorClassify(img)
+    
+    img_new = np.zeros((img.shape[0], img.shape[1]))
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            
+            val_R = int(img[i][j][2] / 51)
+            val_G = int(img[i][j][1] / 51)
+            val_B = int(img[i][j][0] / 51)
+            class_num = str(val_R) + str(val_G) + str(val_B)
+            
+            img_new[i][j] = color_importance[class_num]
+    
+    return img_new
 
 if __name__ == "__main__":
-    #pli_img = Image.open("./image/pika.png")
-    #sobelEng = SobelEnergy(pli_img)
+    pli_img = Image.open("./image/pika2.png")
+    sobelEng = SobelEnergy(pli_img)
+    plt.imshow(sobelEng, cmap="gray")
+    plt.show()
     
     #img = cv2.imread('./image/pika.png')
     #RGBHistogram(img)
@@ -208,4 +264,9 @@ if __name__ == "__main__":
     plotRGBSpace(img)
     
     img = cv2.imread('./image/pika2.png')
-    color_dict = colorClassify(img)
+    color_freq, color_importance = colorClassify(img)
+    
+    img = cv2.imread('./image/pika2.png')
+    color_energy = colorEnergy(img)
+    plt.imshow(color_energy, cmap="gray")
+    plt.show()
