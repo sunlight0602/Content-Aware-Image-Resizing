@@ -5,6 +5,7 @@ from scipy.ndimage import filters
 import cv2
 import math
 from mpl_toolkits import mplot3d
+from collections import defaultdict
 
 def SobelEnergy(inputImage):
     
@@ -156,6 +157,22 @@ def plotRGBSpace(img):
     
     return
 
+def colorClassify(img):
+    
+    color_dict = defaultdict(int) # 0,1,2,3,4,5
+    
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            
+            val_R = int(img[i][j][2] / 51)
+            val_G = int(img[i][j][1] / 51)
+            val_B = int(img[i][j][0] / 51)
+            class_num = str(val_R) + str(val_G) + str(val_B)
+            
+            color_dict[class_num] += 1
+
+    return color_dict
+
 if __name__ == "__main__":
     #pli_img = Image.open("./image/pika.png")
     #sobelEng = SobelEnergy(pli_img)
@@ -169,10 +186,5 @@ if __name__ == "__main__":
     img = cv2.imread('./image/pika2.png')
     plotRGBSpace(img)
     
-    classes = int(math.pow(255/51, 3))
-    
-    if 0<R<51 and 0<G<51 and 0<B<51:
-        classes[0]
-    else if 
-    
-    
+    img = cv2.imread('./image/pika2.png')
+    color_dict = colorClassify(img)
