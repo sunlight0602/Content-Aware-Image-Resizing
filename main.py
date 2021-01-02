@@ -88,14 +88,21 @@ if __name__=='__main__':
         sys.exit("no img")
     
     # Show orig image
+    
+    plt.subplot(221)
+    plt.title("Original")
     plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    plt.show()
+    #plt.show()
     
     # Carve and show
+    plt.subplot(222)
+    plt.title("Sobel Energy")
     c_img1 = crop_c(img, 0.8, 'sobel')
     plt.imshow(cv2.cvtColor(c_img1, cv2.COLOR_BGR2RGB))
-    plt.show()
+    #plt.show()
     
+    plt.subplot(223)
+    plt.title("Color Energy")
     c_img2 = crop_c(img, 0.8, 'color')
     plt.imshow(cv2.cvtColor(c_img2, cv2.COLOR_BGR2RGB))
     plt.show()
