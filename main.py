@@ -63,7 +63,7 @@ def carve_column(img, energy_map):
     # 删除蒙版中所有标记为False的像素，
     # 将照片及能量圖大小重新调整为新图像的维度
     img = img[mask].reshape((r, c-1, 3))
-    energy_map = energy_map[mask].reshape((r, c-1))
+    energy_map = energy_map[mask[:, :, 0]].reshape((r, c-1))
 
     return img, energy_map
 
@@ -77,9 +77,6 @@ def crop_c(img, scale_c, map_type):
         energy_map = colorEnergy(img)
 
     r_eng, c_eng = energy_map.shape
-    
-    print("image size: ", r, c)
-    print("energy size: ", r_eng, c_eng)
 
     for i in trange(c - new_c): # use range if you don't want to use tqdm
         img, energy_map = carve_column(img, energy_map)
@@ -100,12 +97,14 @@ if __name__=='__main__':
     #plt.show()
     
     # Carve and show
+    print("Doing Sobel Energy...")
     plt.subplot(222)
     plt.title("Sobel Energy")
     c_img1 = crop_c(img, 0.8, 'sobel')
     plt.imshow(cv2.cvtColor(c_img1, cv2.COLOR_BGR2RGB))
     #plt.show()
     
+    print("Doing Color Energy...")
     plt.subplot(223)
     plt.title("Color Energy")
     c_img2 = crop_c(img, 0.8, 'color')
