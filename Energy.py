@@ -45,22 +45,21 @@ def SobelEnergy(inputImage):
     result = np.hypot(imx, imy)  # magnitude
     result *= 255.0 / np.max(result) # normalize
     
-    #plotProcess(imx, imy, result)
+    # uncomment to plot sobel proccess
+    # plotProcess(imx, imy, result)
 
     return result
 
 def plotProcess(imx, imy, energy):
-    #plt.subplot(131)
+    plt.subplot(221)
     plt.title("imx")
     plt.imshow(imx, cmap="gray")
-    plt.show()
 
-    #plt.subplot(132)
+    plt.subplot(222)
     plt.title("imy")
     plt.imshow(imy, cmap="gray")
-    plt.show()
 
-    #plt.subplot(133)
+    plt.subplot(223)
     plt.title("energy")
     plt.imshow(energy, cmap="gray")
     plt.show()
@@ -130,7 +129,7 @@ def RGBHistogram(img):
     """
     Plot histogram of RGB values.
     """
-
+    plt.figure('RGB Histogram')
     color = ('b','g','r')
     for i, col in enumerate(color):
         histr = cv2.calcHist([img],[i],None,[256],[0, 256])
@@ -177,7 +176,7 @@ def colorClassify(img):
         key has 3 digits, representing R,G,B value respectively
         digits range from 0~5, calculated by floor(value/51)
         
-        value is the # of pixels of the color class
+        value is the number of pixels of the color class
     """
     
     # Classify
@@ -212,7 +211,9 @@ def colorClassify(img):
     #     color_importance[ele[0]] = ele[1]
     
     total_pixel = sum(color_freq.values())
+
     importance = [ [k, v/total_pixel] for k,v in color_freq.items() ]
+
     importance.sort(key = lambda x: x[1])
     keys = [ e[0] for e in importance ]
     values = [ e[1] for e in importance ]
@@ -222,7 +223,7 @@ def colorClassify(img):
     num = 255/importance[0][1]
     for i, _ in enumerate(importance):
         importance[i][1] = importance[i][1] * num
-        
+    
     color_importance = defaultdict(int)
     for ele in importance:
         color_importance[ele[0]] = ele[1]
@@ -239,6 +240,7 @@ def colorEnergy(img):
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
             
+            # 可以跟 colorClassify 合併加速
             val_R = int(img[i][j][2] / 51)
             val_G = int(img[i][j][1] / 51)
             val_B = int(img[i][j][0] / 51)
@@ -249,9 +251,24 @@ def colorEnergy(img):
     return img_new
 
 if __name__ == "__main__":
-    pli_img = Image.open("./image/castle.jpg")
-    sobelEng = SobelEnergy(pli_img)
+
+    img = cv2.imread('./image/castle.jpg')
+
+    plt.subplot(221)
+    plt.title("Sobel Energy")
+    sobelEng = SobelEnergy(img)
     plt.imshow(sobelEng, cmap="gray")
+
+    plt.subplot(222)
+    plt.title("Color Energy")
+    color_Eng = colorEnergy(img)
+    plt.imshow(color_Eng, cmap="gray")
+
+    plt.subplot(223)
+    plt.title("Combined Energy")
+    combine_Eng = sobelEng + color_Eng
+    plt.imshow(combine_Eng, cmap="gray")
+
     plt.show()
     
     # img = cv2.imread('./image/pika.png')
@@ -260,13 +277,8 @@ if __name__ == "__main__":
     # img = cv2.imread('./image/pika.png')
     # img_LAB = RGBtoLAB(img)
     
-    img = cv2.imread('./image/castle.jpg')
-    plotRGBSpace(img)
+    # img = cv2.imread('./image/castle.jpg')
+    # plotRGBSpace(img)
     
     # img = cv2.imread('./image/pika2.png')
     # color_freq, color_importance = colorClassify(img)
-    
-    img = cv2.imread('./image/castle.jpg')
-    color_energy = colorEnergy(img)
-    plt.imshow(color_energy, cmap="gray")
-    plt.show()

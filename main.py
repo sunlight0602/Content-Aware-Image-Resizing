@@ -18,13 +18,8 @@ from tqdm import trange
 from Energy import SobelEnergy
 from Energy import colorEnergy
 
-def minimum_seam(img, map_type):
+def minimum_seam(img, energy_map):
     r, c, _ = img.shape
-    
-    if map_type=='sobel':
-        energy_map = SobelEnergy(img)
-    elif map_type=='color':
-        energy_map = colorEnergy(img)
 
     M = energy_map.copy()
     backtrack = np.zeros_like(M, dtype=np.int)
@@ -45,10 +40,10 @@ def minimum_seam(img, map_type):
 
     return M, backtrack
 
-def carve_column(img, map_type):
+def carve_column(img, energy_map):
     r, c, _ = img.shape
 
-    M, backtrack = minimum_seam(img, map_type)
+    M, backtrack = minimum_seam(img, energy_map)
 
     # 创建一个(r,c)矩阵，填充值为True
     # 后面会从值为False的图像中移除所有像素
@@ -66,17 +61,28 @@ def carve_column(img, map_type):
     mask = np.stack([mask] * 3, axis=2)
 
     # 删除蒙版中所有标记为False的像素，
-    # 将其大小重新调整为新图像的维度
+    # 将照片及能量圖大小重新调整为新图像的维度
     img = img[mask].reshape((r, c-1, 3))
+    energy_map = energy_map[mask].reshape((r, c-1))
 
-    return img
+    return img, energy_map
 
 def crop_c(img, scale_c, map_type):
     r, c, _ = img.shape
     new_c = int(scale_c * c)
 
+    if map_type=='sobel':
+        energy_map = SobelEnergy(img)
+    elif map_type=='color':
+        energy_map = colorEnergy(img)
+
+    r_eng, c_eng = energy_map.shape
+    
+    print("image size: ", r, c)
+    print("energy size: ", r_eng, c_eng)
+
     for i in trange(c - new_c): # use range if you don't want to use tqdm
-        img = carve_column(img, map_type)
+        img, energy_map = carve_column(img, energy_map)
 
     return img
 
@@ -88,7 +94,6 @@ if __name__=='__main__':
         sys.exit("no img")
     
     # Show orig image
-    
     plt.subplot(221)
     plt.title("Original")
     plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
