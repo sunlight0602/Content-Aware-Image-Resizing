@@ -250,14 +250,21 @@ def colorEnergy(img):
     
     return img_new
 
+def combineEnergy(sobel_Eng, color_Eng):
+    combine_Eng = sobel_Eng + color_Eng
+    max_val = np.max(combine_Eng)
+    combine_Eng = combine_Eng * (255/max_val)
+
+    return combine_Eng
+
 if __name__ == "__main__":
 
-    img = cv2.imread('./image/castle.jpg')
+    img = cv2.imread('./image/dolphin.jpg')
 
     plt.subplot(221)
     plt.title("Sobel Energy")
-    sobelEng = SobelEnergy(img)
-    plt.imshow(sobelEng, cmap="gray")
+    sobel_Eng = SobelEnergy(img)
+    plt.imshow(sobel_Eng, cmap="gray")
 
     plt.subplot(222)
     plt.title("Color Energy")
@@ -266,7 +273,7 @@ if __name__ == "__main__":
 
     plt.subplot(223)
     plt.title("Combined Energy")
-    combine_Eng = sobelEng + color_Eng
+    combine_Eng = combineEnergy(sobel_Eng, color_Eng)
     plt.imshow(combine_Eng, cmap="gray")
 
     plt.show()
