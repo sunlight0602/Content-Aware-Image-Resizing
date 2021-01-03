@@ -17,6 +17,7 @@ from tqdm import trange
 
 from Energy import SobelEnergy
 from Energy import colorEnergy
+from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
 def minimum_seam(img, energy_map):
@@ -76,8 +77,10 @@ def crop_c(img, scale_c, map_type):
         energy_map = SobelEnergy(img)
     elif map_type=='color':
         energy_map = colorEnergy(img)
+    elif map_type=='LABcolor':
+        energy_map = LABcolorEnergy(img)
     elif map_type=='combine':
-        energy_map = combineEnergy(SobelEnergy(img), colorEnergy(img))
+        energy_map = combineEnergy(SobelEnergy(img), LABcolorEnergy(img))
 
     r_eng, c_eng = energy_map.shape
 
@@ -89,7 +92,7 @@ def crop_c(img, scale_c, map_type):
 if __name__=='__main__':
     
     # Read image
-    img = cv2.imread('./image/dolphin.jpg')
+    img = cv2.imread('./image/peak.jpg')
     if img is None:
         sys.exit("no img")
     
@@ -100,21 +103,28 @@ if __name__=='__main__':
     #plt.show()
     
     # Carve and show
-    print("Doing Sobel Energy...")
+    # print("Doing Sobel Energy...")
+    # plt.subplot(222)
+    # plt.title("Sobel Energy")
+    # c_img1 = crop_c(img, 0.5, 'sobel')
+    # plt.imshow(cv2.cvtColor(c_img1, cv2.COLOR_BGR2RGB))
+
+    print("Doing LAB Color Energy...")
     plt.subplot(222)
-    plt.title("Sobel Energy")
-    c_img1 = crop_c(img, 0.5, 'sobel')
+    plt.title("LAB color Energy")
+    c_img1 = crop_c(img, 0.8, 'LABcolor')
     plt.imshow(cv2.cvtColor(c_img1, cv2.COLOR_BGR2RGB))
     
     print("Doing Color Energy...")
     plt.subplot(223)
     plt.title("Color Energy")
-    c_img2 = crop_c(img, 0.5, 'color')
+    c_img2 = crop_c(img, 0.8, 'color')
     plt.imshow(cv2.cvtColor(c_img2, cv2.COLOR_BGR2RGB))
 
     print("Doing Combine Energy...")
     plt.subplot(224)
     plt.title("Combine Energy")
-    c_img3 = crop_c(img, 0.5, 'combine')
+    c_img3 = crop_c(img, 0.8, 'combine')
     plt.imshow(cv2.cvtColor(c_img3, cv2.COLOR_BGR2RGB))
+
     plt.show()
