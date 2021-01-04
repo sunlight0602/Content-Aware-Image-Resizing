@@ -2,14 +2,19 @@ import numpy as np
 from matplotlib import pyplot as plt
 from PIL import Image
 from scipy.ndimage import filters
+from scipy.spatial import distance
 import cv2
-import math
 from mpl_toolkits import mplot3d
 from collections import defaultdict
 
-def SobelEnergy(inputImage):
-    
+from CIELAB_color_space import RGBtoLAB
+
+def SobelEnergy(inputImage, colorType):
     img = np.array(inputImage)
+
+    if colorType == 'LAB':
+        img = RGBtoLAB(img)
+
     imR = img[:, :, 0]
     imG = img[:, :, 1]
     imB = img[:, :, 2]
@@ -65,65 +70,6 @@ def plotProcess(imx, imy, energy):
     plt.show()
 
     return
-    
-def RGBtoLAB(img):
-    """
-    Turn RGB color space to CIELAB space.
-    """
-    img = img/255.0
-    
-    CIE_XYZ = [[0.412453, 0.357580, 0.180423],\
-               [0.212671, 0.715160, 0.072169],\
-               [0.019334, 0.119193, 0.950227]]
-    
-    imgR = img[:,:,0]
-    imgG = img[:,:,1]
-    imgB = img[:,:,2]
-    
-    img_XYZ = np.zeros( (img.shape[0], img.shape[1], 3) )
-
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            R = imgR[i][j]
-            G = imgG[i][j]
-            B = imgB[i][j]
-            img_XYZ[i][j] = np.dot(CIE_XYZ, [R,G,B])
-    
-    img_LAB = np.zeros( (img.shape[0], img.shape[1], 3) )
-    
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            X = img_XYZ[i][j][0]
-            Y = img_XYZ[i][j][1]
-            Z = img_XYZ[i][j][2]
-            
-            Xn = 0.9515
-            Yn = 1.0
-            Zn = 1.0886
-            
-            a = 500 * ( LAB_func(X/Xn) - LAB_func(Y/Yn) )
-            b = 200 * ( LAB_func(Y/Yn) - LAB_func(Z/Zn) )
-            L = L_func(Y, Yn)
-            
-            img_LAB[i][j] = [L, a, b]
-    
-    return img_LAB
-
-def LAB_func(t):
-    if t > 0.008856:
-        t = math.pow(t, 1/3)
-    else:
-        t = 7.787 * t + (16/116)
-    
-    return t
-
-def L_func(Y, Yn):
-    if Y/Yn > 0.008856:
-        L = 116 * math.pow(Y/Yn, 1/3) - 16
-    else:
-        L = 903.3 * (Y/Yn)
-    
-    return L
 
 def RGBHistogram(img):
     """
@@ -164,7 +110,7 @@ def plotRGBSpace(img):
     
     return
 
-def colorClassify(img):
+def RGBcolorClassify(img):
     """
     Parameters
     ----------
@@ -230,11 +176,11 @@ def colorClassify(img):
     
     return color_freq, color_importance
 
-def colorEnergy(img):
+def RGBcolorEnergy(img):
     """
     Color classes with highest frequency indicates lowest energy, vice versa.
     """
-    _, color_importance = colorClassify(img)
+    _, color_importance = RGBcolorClassify(img)
     
     img_new = np.zeros((img.shape[0], img.shape[1]))
     for i in range(img.shape[0]):
@@ -330,28 +276,40 @@ def combineEnergy(sobel_Eng, color_Eng):
 
 if __name__ == "__main__":
 
-    img = cv2.imread('./image/peak.jpg')
+    img = cv2.imread('./image/lake.jpg')
 
+    plt.figure('RGB color space')
     plt.subplot(221)
     plt.title("Sobel Energy")
-    sobel_Eng = SobelEnergy(img)
+    sobel_Eng = SobelEnergy(img, 'RGB')
     plt.imshow(sobel_Eng, cmap="gray")
 
     plt.subplot(222)
     plt.title("Color Energy")
-    color_Eng = colorEnergy(img)
-    plt.imshow(color_Eng, cmap="gray")
+    RGBcolor_Eng = RGBcolorEnergy(img)
+    plt.imshow(RGBcolor_Eng, cmap="gray")
 
     plt.subplot(223)
+    plt.title("Combined Energy")
+    combine_Eng = combineEnergy(sobel_Eng, RGBcolor_Eng)
+    plt.imshow(combine_Eng, cmap="gray")
+
+    plt.figure('LAB color space')
+    plt.subplot(221)
+    plt.title("Sobel Energy")
+    sobel_Eng = SobelEnergy(img, 'LAB')
+    plt.imshow(sobel_Eng, cmap="gray")
+    
+    plt.subplot(222)
     plt.title("LAB Color Energy")
     LABcolor_Eng = LABcolorEnergy(img)
     plt.imshow(LABcolor_Eng, cmap="gray")
 
-    plt.subplot(224)
+    plt.subplot(223)
     plt.title("Combined Energy")
-    combine_Eng = combineEnergy(sobel_Eng, color_Eng)
+    combine_Eng = combineEnergy(sobel_Eng, LABcolor_Eng)
     plt.imshow(combine_Eng, cmap="gray")
-
+    plt.show()
 
     # img = cv2.imread('./image/pika.png')
     # RGBHistogram(img)
@@ -367,5 +325,3 @@ if __name__ == "__main__":
     
     # img = cv2.imread('./image/pika2.png')
     # color_freq, color_importance = colorClassify(img)
-
-    plt.show()

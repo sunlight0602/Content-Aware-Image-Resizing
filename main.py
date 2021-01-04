@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from tqdm import trange
 
 from Energy import SobelEnergy
-from Energy import colorEnergy
+from Energy import RGBcolorEnergy
 from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
@@ -76,7 +76,7 @@ def crop_c(img, scale_c, map_type):
     if map_type=='sobel':
         energy_map = SobelEnergy(img)
     elif map_type=='color':
-        energy_map = colorEnergy(img)
+        energy_map = RGBcolorEnergy(img)
     elif map_type=='LABcolor':
         energy_map = LABcolorEnergy(img)
     elif map_type=='combine':
