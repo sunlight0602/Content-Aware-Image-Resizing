@@ -1,8 +1,7 @@
+import os
 import numpy as np
 from matplotlib import pyplot as plt
-from PIL import Image
 from scipy.ndimage import filters
-from scipy.spatial import distance
 import cv2
 from mpl_toolkits import mplot3d
 from collections import defaultdict
@@ -276,45 +275,49 @@ def combineEnergy(sobel_Eng, color_Eng):
 
 if __name__ == "__main__":
 
-    img = cv2.imread('./image/dolphin.jpg')
+    resultDir = 'peak_result/'
+    if not os.path.exists(resultDir):
+        os.mkdir(resultDir)
+
+    img = cv2.imread('./image/peak.jpg')
 
     plt.figure('RGB color space')
     plt.subplot(221)
-    plt.title("Sobel Energy")
+    plt.title("RGB Sobel Energy")
     sobel_Eng = SobelEnergy(img, 'RGB')
     plt.imshow(sobel_Eng, cmap="gray")
-    cv2.imwrite('sobel_Eng.jpg', sobel_Eng)
+    cv2.imwrite(resultDir+'sobel_Eng.jpg', sobel_Eng)
 
     plt.subplot(222)
-    plt.title("Color Energy")
+    plt.title("RGB Color Energy")
     RGBcolor_Eng = RGBcolorEnergy(img)
     plt.imshow(RGBcolor_Eng, cmap="gray")
-    cv2.imwrite('RGBcolor_Eng.jpg', RGBcolor_Eng)
+    cv2.imwrite(resultDir+'RGBcolor_Eng.jpg', RGBcolor_Eng)
 
     plt.subplot(223)
-    plt.title("Combined Energy")
+    plt.title("RGB Combined Energy")
     combine_Eng = combineEnergy(sobel_Eng, RGBcolor_Eng)
     plt.imshow(combine_Eng, cmap="gray")
-    cv2.imwrite('combine_Eng.jpg', combine_Eng)
+    cv2.imwrite(resultDir+'combine_Eng.jpg', combine_Eng)
 
     plt.figure('LAB color space')
     plt.subplot(221)
-    plt.title("Sobel Energy")
+    plt.title("LAB Sobel Energy")
     LABsobel_Eng = SobelEnergy(img, 'LAB')
     plt.imshow(LABsobel_Eng, cmap="gray")
-    cv2.imwrite('LABsobel_Eng.jpg', LABsobel_Eng)
+    cv2.imwrite(resultDir+'LABsobel_Eng.jpg', LABsobel_Eng)
     
     plt.subplot(222)
     plt.title("LAB Color Energy")
     LABcolor_Eng = LABcolorEnergy(img)
     plt.imshow(LABcolor_Eng, cmap="gray")
-    cv2.imwrite('LABcolor_Eng.jpg', LABcolor_Eng)
+    cv2.imwrite(resultDir+'LABcolor_Eng.jpg', LABcolor_Eng)
 
     plt.subplot(223)
-    plt.title("Combined Energy")
+    plt.title("LAB Combined Energy")
     LABcombine_Eng = combineEnergy(sobel_Eng, LABcolor_Eng)
     plt.imshow(LABcombine_Eng, cmap="gray")
-    cv2.imwrite('LABcombine_Eng.jpg', LABcombine_Eng)
+    cv2.imwrite(resultDir+'LABcombine_Eng.jpg', LABcombine_Eng)
     plt.show()
 
     # img = cv2.imread('./image/pika.png')
