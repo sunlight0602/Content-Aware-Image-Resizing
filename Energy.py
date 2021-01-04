@@ -268,7 +268,7 @@ def LABcolorEnergy(img):
     return img_new
 
 def combineEnergy(sobel_Eng, color_Eng):
-    combine_Eng = sobel_Eng + color_Eng
+    combine_Eng = sobel_Eng*1.3 + color_Eng
     max_val = np.max(combine_Eng)
     combine_Eng = combine_Eng * (255/max_val)
 
@@ -276,7 +276,7 @@ def combineEnergy(sobel_Eng, color_Eng):
 
 if __name__ == "__main__":
 
-    img = cv2.imread('./image/lake.jpg')
+    img = cv2.imread('./image/dolphin.jpg')
 
     plt.figure('RGB color space')
     plt.subplot(221)

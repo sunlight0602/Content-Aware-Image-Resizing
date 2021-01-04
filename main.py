@@ -14,6 +14,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import trange
+import scipy.misc
 
 from Energy import SobelEnergy
 from Energy import RGBcolorEnergy
@@ -73,14 +74,18 @@ def crop_c(img, scale_c, map_type):
     r, c, _ = img.shape
     new_c = int(scale_c * c)
 
-    if map_type=='sobel':
-        energy_map = SobelEnergy(img)
-    elif map_type=='color':
+    if map_type=='RGBsobel':
+        energy_map = SobelEnergy(img, 'RGB')
+    elif map_type=='RGBcolor':
         energy_map = RGBcolorEnergy(img)
+    elif map_type=='RGBcombine':
+        energy_map = combineEnergy(SobelEnergy(img, 'RGB'), LABcolorEnergy(img))
+    elif map_type=='LABsobel':
+        energy_map = SobelEnergy(img, 'LAB')
     elif map_type=='LABcolor':
         energy_map = LABcolorEnergy(img)
-    elif map_type=='combine':
-        energy_map = combineEnergy(SobelEnergy(img), LABcolorEnergy(img))
+    elif map_type=='LABcombine':
+        energy_map = combineEnergy(SobelEnergy(img, 'LAB'), LABcolorEnergy(img))
 
     r_eng, c_eng = energy_map.shape
 
@@ -92,39 +97,68 @@ def crop_c(img, scale_c, map_type):
 if __name__=='__main__':
     
     # Read image
-    img = cv2.imread('./image/peak.jpg')
+    img = cv2.imread('./image/dolphin.jpg')
+    saveName = 'Edge_enhance_'
     if img is None:
         sys.exit("no img")
     
     # Show orig image
-    plt.subplot(221)
-    plt.title("Original")
-    plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    # plt.subplot(221)
+    # plt.title("Original")
+    # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     #plt.show()
     
     # Carve and show
-    # print("Doing Sobel Energy...")
-    # plt.subplot(222)
-    # plt.title("Sobel Energy")
-    # c_img1 = crop_c(img, 0.5, 'sobel')
-    # plt.imshow(cv2.cvtColor(c_img1, cv2.COLOR_BGR2RGB))
+    print("Doing RGBSobel Energy...")
+    plt.subplot(231)
+    plt.title("RGB Sobel Energy")
+    rgbsobel = crop_c(img, 0.8, 'RGBsobel')
+    plt.imshow(cv2.cvtColor(rgbsobel, cv2.COLOR_BGR2RGB))
+    fileName = saveName + 'rgbsobel' + '.jpg'
+    print(fileName)
+    plt.imsave(fileName, rgbsobel.astype('uint8'))
+
+    print("Doing RGBColor Energy...")
+    plt.subplot(232)
+    plt.title("RGB Color Energy")
+    rgbcolor = crop_c(img, 0.8, 'RGBcolor')
+    plt.imshow(cv2.cvtColor(rgbcolor, cv2.COLOR_BGR2RGB))
+    fileName = saveName + 'rgbcolor' + '.jpg'
+    plt.imsave(fileName, rgbcolor.astype('uint8'))
+
+    print("Doing RGB Combine Energy...")
+    plt.subplot(233)
+    plt.title("RGB Combine Energy")
+    rgbcombine = crop_c(img, 0.8, 'RGBcombine')
+    plt.imshow(cv2.cvtColor(rgbcombine, cv2.COLOR_BGR2RGB))
+    fileName = saveName + 'rgbcombine' + '.jpg'
+    plt.imsave(fileName, rgbcombine)
+
+    print("Doing LABSobel Energy...")
+    plt.subplot(234)
+    plt.title("LAB Sobel Energy")
+    labsobel = crop_c(img, 0.8, 'LABsobel')
+    plt.imshow(cv2.cvtColor(labsobel, cv2.COLOR_BGR2RGB))
+    fileName = saveName + 'labsobel' + '.jpg'
+    plt.imsave(fileName, labsobel)
+
 
     print("Doing LAB Color Energy...")
-    plt.subplot(222)
+    plt.subplot(235)
     plt.title("LAB color Energy")
-    c_img1 = crop_c(img, 0.8, 'LABcolor')
-    plt.imshow(cv2.cvtColor(c_img1, cv2.COLOR_BGR2RGB))
-    
-    print("Doing Color Energy...")
-    plt.subplot(223)
-    plt.title("Color Energy")
-    c_img2 = crop_c(img, 0.8, 'color')
-    plt.imshow(cv2.cvtColor(c_img2, cv2.COLOR_BGR2RGB))
+    labcolor = crop_c(img, 0.8, 'LABcolor')
+    plt.imshow(cv2.cvtColor(labcolor, cv2.COLOR_BGR2RGB))
+    fileName = saveName + 'labcolor' + '.jpg'
+    plt.imsave(fileName, labcolor)
 
-    print("Doing Combine Energy...")
-    plt.subplot(224)
-    plt.title("Combine Energy")
-    c_img3 = crop_c(img, 0.8, 'combine')
-    plt.imshow(cv2.cvtColor(c_img3, cv2.COLOR_BGR2RGB))
+    print("Doing LAB Combine Energy...")
+    plt.subplot(236)
+    plt.title("LAB Combine Energy")
+    labcombine = crop_c(img, 0.8, 'LABcombine')
+    plt.imshow(cv2.cvtColor(labcombine, cv2.COLOR_BGR2RGB))
+    fileName = saveName + 'labcombine' + '.jpg'
+    plt.imsave(fileName, labcombine)
+    
+    
 
     plt.show()
