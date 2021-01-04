@@ -14,7 +14,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import trange
-import scipy.misc
+from PIL import Image
 
 from Energy import SobelEnergy
 from Energy import RGBcolorEnergy
@@ -113,10 +113,11 @@ if __name__=='__main__':
     plt.subplot(231)
     plt.title("RGB Sobel Energy")
     rgbsobel = crop_c(img, 0.8, 'RGBsobel')
+    rgbsobel = rgbsobel.astype(np.uint8)
+    print(rgbsobel.dtype) 
     plt.imshow(cv2.cvtColor(rgbsobel, cv2.COLOR_BGR2RGB))
     fileName = saveName + 'rgbsobel' + '.jpg'
-    print(fileName)
-    plt.imsave(fileName, rgbsobel.astype('uint8'))
+    cv2.imwrite(fileName, rgbsobel)
 
     print("Doing RGBColor Energy...")
     plt.subplot(232)
@@ -124,7 +125,7 @@ if __name__=='__main__':
     rgbcolor = crop_c(img, 0.8, 'RGBcolor')
     plt.imshow(cv2.cvtColor(rgbcolor, cv2.COLOR_BGR2RGB))
     fileName = saveName + 'rgbcolor' + '.jpg'
-    plt.imsave(fileName, rgbcolor.astype('uint8'))
+    cv2.imwrite(fileName, rgbcolor)
 
     print("Doing RGB Combine Energy...")
     plt.subplot(233)
@@ -132,7 +133,7 @@ if __name__=='__main__':
     rgbcombine = crop_c(img, 0.8, 'RGBcombine')
     plt.imshow(cv2.cvtColor(rgbcombine, cv2.COLOR_BGR2RGB))
     fileName = saveName + 'rgbcombine' + '.jpg'
-    plt.imsave(fileName, rgbcombine)
+    cv2.imwrite(fileName, rgbcombine)
 
     print("Doing LABSobel Energy...")
     plt.subplot(234)
@@ -140,7 +141,7 @@ if __name__=='__main__':
     labsobel = crop_c(img, 0.8, 'LABsobel')
     plt.imshow(cv2.cvtColor(labsobel, cv2.COLOR_BGR2RGB))
     fileName = saveName + 'labsobel' + '.jpg'
-    plt.imsave(fileName, labsobel)
+    cv2.imwrite(fileName, labsobel)
 
 
     print("Doing LAB Color Energy...")
@@ -149,7 +150,7 @@ if __name__=='__main__':
     labcolor = crop_c(img, 0.8, 'LABcolor')
     plt.imshow(cv2.cvtColor(labcolor, cv2.COLOR_BGR2RGB))
     fileName = saveName + 'labcolor' + '.jpg'
-    plt.imsave(fileName, labcolor)
+    cv2.imwrite(fileName, labcolor)
 
     print("Doing LAB Combine Energy...")
     plt.subplot(236)
@@ -157,8 +158,6 @@ if __name__=='__main__':
     labcombine = crop_c(img, 0.8, 'LABcombine')
     plt.imshow(cv2.cvtColor(labcombine, cv2.COLOR_BGR2RGB))
     fileName = saveName + 'labcombine' + '.jpg'
-    plt.imsave(fileName, labcombine)
+    cv2.imwrite(fileName, labcombine)
     
-    
-
     plt.show()
