@@ -275,18 +275,18 @@ def combineEnergy(sobel_Eng, color_Eng):
 
 if __name__ == "__main__":
 
-    resultDir = 'peak_result/'
+    resultDir = 'dolphin_result/'
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
-    img = cv2.imread('./image/peak.jpg')
+    img = cv2.imread('./image/dolphin.jpg')
 
     plt.figure('RGB color space')
     plt.subplot(221)
     plt.title("RGB Sobel Energy")
     sobel_Eng = SobelEnergy(img, 'RGB')
     plt.imshow(sobel_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'sobel_Eng.jpg', sobel_Eng)
+    cv2.imwrite(resultDir+'RGBsobel_Eng.jpg', sobel_Eng)
 
     plt.subplot(222)
     plt.title("RGB Color Energy")
@@ -298,7 +298,7 @@ if __name__ == "__main__":
     plt.title("RGB Combined Energy")
     combine_Eng = combineEnergy(sobel_Eng, RGBcolor_Eng)
     plt.imshow(combine_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'combine_Eng.jpg', combine_Eng)
+    cv2.imwrite(resultDir+'RGBcombine_Eng.jpg', combine_Eng)
 
     plt.figure('LAB color space')
     plt.subplot(221)
