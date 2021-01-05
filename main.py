@@ -4,6 +4,7 @@
 Created on Mon Dec 14 17:14:50 2020
 
 Seam carving main process
+with fast forward
 *Takes time*
 
 Reference: https://zhuanlan.zhihu.com/p/38974520
@@ -20,15 +21,18 @@ from Energy import RGBcolorEnergy
 from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
+RGB_color_div = 50
+img_name = 'pika4.jpg'
+
 def minimum_seam(img, map_type):
     r, c, _ = img.shape
 
     if map_type=='RGBsobel':
         energy_map = SobelEnergy(img, 'RGB')
     elif map_type=='RGBcolor':
-        energy_map = RGBcolorEnergy(img)
+        energy_map = RGBcolorEnergy(img,RGB_color_div)
     elif map_type=='RGBcombine':
-        energy_map = combineEnergy(SobelEnergy(img, 'RGB'), LABcolorEnergy(img))
+        energy_map = combineEnergy(SobelEnergy(img, 'RGB'), RGBcolorEnergy(img,RGB_color_div))
     elif map_type=='LABsobel':
         energy_map = SobelEnergy(img, 'LAB')
     elif map_type=='LABcolor':
@@ -36,6 +40,10 @@ def minimum_seam(img, map_type):
     elif map_type=='LABcombine':
         energy_map = combineEnergy(SobelEnergy(img, 'LAB'), LABcolorEnergy(img))
 
+    # Show carving process
+    # plt.imshow(energy_map, cmap="gray")
+    # plt.show()
+    
     M = energy_map.copy()
     backtrack = np.zeros_like(M, dtype=np.int)
 
@@ -56,6 +64,9 @@ def minimum_seam(img, map_type):
     return M, backtrack
 
 def carve_column(img, map_type):
+    """
+    Carve one seam.
+    """
     r, c, _ = img.shape
 
     M, backtrack = minimum_seam(img, map_type)
@@ -82,6 +93,9 @@ def carve_column(img, map_type):
     return img
 
 def crop_c(img, scale_c, map_type):
+    """
+    Calculate new img size.
+    """
     r, c, _ = img.shape
     new_c = int(scale_c * c)
 
@@ -92,69 +106,68 @@ def crop_c(img, scale_c, map_type):
 
 if __name__=='__main__':
     
-    resultDir = 'dolphin_result/'
+    # Create destiny file
+    resultDir = img_name[:-4]+'_result/'
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
     # Read image
-    img = cv2.imread('./image/dolphin.jpg')
+    img = cv2.imread('./image/'+img_name)
     saveName = 'Edge_enhance_'
     if img is None:
         sys.exit("no img")
     
-    # Show orig image
-    # plt.subplot(221)
-    # plt.title("Original")
-    # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    #plt.show()
-    
     # Carve and show
-    print("Doing RGBSobel Energy...")
+    # RGB sobel
+    print("\nDoing RGBSobel Energy...")
     plt.subplot(231)
-    plt.title("RGB Sobel Energy")
+    # plt.title("RGB Sobel Energy")
     rgbsobel = crop_c(img, 0.8, 'RGBsobel')
     rgbsobel = rgbsobel.astype(np.uint8)
-    print(rgbsobel.dtype) 
     plt.imshow(cv2.cvtColor(rgbsobel, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'rgbsobel' + '.jpg'
     cv2.imwrite(fileName, rgbsobel)
 
-    print("Doing RGBColor Energy...")
+    # RGB color
+    print("\nDoing RGBColor Energy...")
     plt.subplot(232)
-    plt.title("RGB Color Energy")
+    # plt.title("RGB Color Energy")
     rgbcolor = crop_c(img, 0.8, 'RGBcolor')
     plt.imshow(cv2.cvtColor(rgbcolor, cv2.COLOR_BGR2RGB))
-    fileName = resultDir + 'rgbcolor' + '.jpg'
+    fileName = resultDir + 'rgbcolor_' + str(RGB_color_div) + '.jpg'
     cv2.imwrite(fileName, rgbcolor)
 
-    print("Doing RGB Combine Energy...")
+    # RGB sobel + color
+    print("\nDoing RGB Combine Energy...")
     plt.subplot(233)
-    plt.title("RGB Combine Energy")
+    # plt.title("RGB Combine Energy")
     rgbcombine = crop_c(img, 0.8, 'RGBcombine')
     plt.imshow(cv2.cvtColor(rgbcombine, cv2.COLOR_BGR2RGB))
-    fileName = resultDir + 'rgbcombine' + '.jpg'
+    fileName = resultDir + 'rgbcombine_' + str(RGB_color_div) + '.jpg'
     cv2.imwrite(fileName, rgbcombine)
 
-    print("Doing LABSobel Energy...")
+    # LAB sobel
+    print("\nDoing LABSobel Energy...")
     plt.subplot(234)
-    plt.title("LAB Sobel Energy")
+    # plt.title("LAB Sobel Energy")
     labsobel = crop_c(img, 0.8, 'LABsobel')
     plt.imshow(cv2.cvtColor(labsobel, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'labsobel' + '.jpg'
     cv2.imwrite(fileName, labsobel)
 
-
-    print("Doing LAB Color Energy...")
+    # LAB color
+    print("\nDoing LAB Color Energy...")
     plt.subplot(235)
-    plt.title("LAB color Energy")
+    # plt.title("LAB color Energy")
     labcolor = crop_c(img, 0.8, 'LABcolor')
     plt.imshow(cv2.cvtColor(labcolor, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'labcolor' + '.jpg'
     cv2.imwrite(fileName, labcolor)
 
-    print("Doing LAB Combine Energy...")
+    # LAB sobel + color
+    print("\nDoing LAB Combine Energy...")
     plt.subplot(236)
-    plt.title("LAB Combine Energy")
+    # plt.title("LAB Combine Energy")
     labcombine = crop_c(img, 0.8, 'LABcombine')
     plt.imshow(cv2.cvtColor(labcombine, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'labcombine' + '.jpg'

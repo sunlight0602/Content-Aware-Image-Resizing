@@ -8,6 +8,9 @@ from collections import defaultdict
 
 from CIELAB_color_space import RGBtoLAB
 
+RGB_color_div = 50
+img_name = 'pika4.jpg'
+
 def SobelEnergy(inputImage, colorType):
     img = np.array(inputImage)
 
@@ -109,7 +112,7 @@ def plotRGBSpace(img):
     
     return
 
-def RGBcolorClassify(img):
+def RGBcolorClassify(img, div):
     """
     Parameters
     ----------
@@ -130,9 +133,9 @@ def RGBcolorClassify(img):
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
             
-            val_R = int(img[i][j][2] / 51)
-            val_G = int(img[i][j][1] / 51)
-            val_B = int(img[i][j][0] / 51)
+            val_R = int(img[i][j][2] / div)
+            val_G = int(img[i][j][1] / div)
+            val_B = int(img[i][j][0] / div)
             class_num = str(val_R) + str(val_G) + str(val_B)
             
             color_freq[class_num] += 1
@@ -175,20 +178,20 @@ def RGBcolorClassify(img):
     
     return color_freq, color_importance
 
-def RGBcolorEnergy(img):
+def RGBcolorEnergy(img, div):
     """
     Color classes with highest frequency indicates lowest energy, vice versa.
     """
-    _, color_importance = RGBcolorClassify(img)
+    _, color_importance = RGBcolorClassify(img, div)
     
     img_new = np.zeros((img.shape[0], img.shape[1]))
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
             
             # 可以跟 colorClassify 合併加速
-            val_R = int(img[i][j][2] / 51)
-            val_G = int(img[i][j][1] / 51)
-            val_B = int(img[i][j][0] / 51)
+            val_R = int(img[i][j][2] / div)
+            val_G = int(img[i][j][1] / div)
+            val_B = int(img[i][j][0] / div)
             class_num = str(val_R) + str(val_G) + str(val_B)
             
             img_new[i][j] = color_importance[class_num]
@@ -275,46 +278,44 @@ def combineEnergy(sobel_Eng, color_Eng):
 
 if __name__ == "__main__":
 
-    resultDir = 'peak_result/'
+    resultDir = img_name[:-4]+'_result/'
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
-    img = cv2.imread('./image/peak.jpg')
+    img = cv2.imread('./image/'+img_name)
 
-    plt.figure('RGB color space')
-    plt.subplot(221)
-    plt.title("RGB Sobel Energy")
+    plt.subplot(231)
+    # plt.title("RGB Sobel Energy")
     sobel_Eng = SobelEnergy(img, 'RGB')
     plt.imshow(sobel_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'sobel_Eng.jpg', sobel_Eng)
+    cv2.imwrite(resultDir+'RGBsobel_Eng.jpg', sobel_Eng)
 
-    plt.subplot(222)
-    plt.title("RGB Color Energy")
-    RGBcolor_Eng = RGBcolorEnergy(img)
+    plt.subplot(232)
+    # plt.title("RGB Color Energy")
+    RGBcolor_Eng = RGBcolorEnergy(img, RGB_color_div)
     plt.imshow(RGBcolor_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'RGBcolor_Eng.jpg', RGBcolor_Eng)
+    cv2.imwrite(resultDir+'RGBcolor_Eng_'+ str(RGB_color_div) +'.jpg', RGBcolor_Eng)
 
-    plt.subplot(223)
-    plt.title("RGB Combined Energy")
+    plt.subplot(233)
+    # plt.title("RGB Combined Energy")
     combine_Eng = combineEnergy(sobel_Eng, RGBcolor_Eng)
     plt.imshow(combine_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'combine_Eng.jpg', combine_Eng)
+    cv2.imwrite(resultDir+'RGBcombine_Eng_'+ str(RGB_color_div) +'.jpg', combine_Eng)
 
-    plt.figure('LAB color space')
-    plt.subplot(221)
-    plt.title("LAB Sobel Energy")
+    plt.subplot(234)
+    # plt.title("LAB Sobel Energy")
     LABsobel_Eng = SobelEnergy(img, 'LAB')
     plt.imshow(LABsobel_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABsobel_Eng.jpg', LABsobel_Eng)
     
-    plt.subplot(222)
-    plt.title("LAB Color Energy")
+    plt.subplot(235)
+    # plt.title("LAB Color Energy")
     LABcolor_Eng = LABcolorEnergy(img)
     plt.imshow(LABcolor_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABcolor_Eng.jpg', LABcolor_Eng)
 
-    plt.subplot(223)
-    plt.title("LAB Combined Energy")
+    plt.subplot(236)
+    # plt.title("LAB Combined Energy")
     LABcombine_Eng = combineEnergy(sobel_Eng, LABcolor_Eng)
     plt.imshow(LABcombine_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABcombine_Eng.jpg', LABcombine_Eng)
