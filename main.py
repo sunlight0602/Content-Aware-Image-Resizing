@@ -22,8 +22,8 @@ from Energy import RGBcolorEnergy
 from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
-color_div = 128
-img_name = 'human2.jpg'
+color_div = 52
+img_name = 'pika4.jpg'
 
 def minimum_seam(img, map_type):
     r, c, _ = img.shape
@@ -31,15 +31,17 @@ def minimum_seam(img, map_type):
     if map_type=='RGBsobel':
         energy_map = rgbSobelEnergy(img, 'RGB')
     elif map_type=='RGBcolor':
-        energy_map = RGBcolorEnergy(img,color_div)
+        energy_map = RGBcolorEnergy(img, color_div)
     elif map_type=='RGBcombine':
         energy_map = combineEnergy(rgbSobelEnergy(img, 'RGB'), RGBcolorEnergy(img,color_div))
     elif map_type=='LABsobel':
         energy_map = labSobelEnergy(img)
     elif map_type=='LABcolor':
-        energy_map = LABcolorEnergy(img)
+        energy_map = LABcolorEnergy(img, color_div)
     elif map_type=='LABcombine':
         energy_map = combineEnergy(labSobelEnergy(img), LABcolorEnergy(img))
+    elif map_type=='RGBsobelLABcolorcombine':
+        energy_map = combineEnergy(rgbSobelEnergy(img, 'RGB'), LABcolorEnergy(img,color_div))
 
     # Show carving process
     # plt.imshow(energy_map, cmap="gray")
@@ -175,3 +177,12 @@ if __name__=='__main__':
     cv2.imwrite(fileName, labcombine)
     
     plt.show()
+    
+    # testing =========================================
+    
+    # RGB sobel + LAB color
+    print("\nDoing RGB sobel + LAB color combine Energy...")
+    combine = crop_c(img, 0.8, 'RGBsobelLABcolorcombine')
+    plt.imshow(cv2.cvtColor(combine, cv2.COLOR_BGR2RGB))
+    fileName = resultDir + 'combine_' + str(color_div) + '.jpg'
+    cv2.imwrite(fileName, combine)

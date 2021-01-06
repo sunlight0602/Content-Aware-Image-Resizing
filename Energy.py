@@ -8,8 +8,8 @@ from collections import defaultdict
 
 from CIELAB_color_space import RGBtoLAB
 
-color_div = 128
-img_name = 'human2.jpg'
+color_div = 86
+img_name = 'pika4.jpg'
 
 def rgbSobelEnergy(inputImage, colorType):
     img = np.array(inputImage)
@@ -78,61 +78,6 @@ def labSobelEnergy(inputImage):
     result *= 255.0 / np.max(result)
 
     return result
-
-def plotProcess(imx, imy, energy):
-    
-    plt.title("imx")
-    plt.imshow(imx, cmap="gray")
-
-    # plt.subplot(222)
-    # plt.title("imy")
-    # plt.imshow(imy, cmap="gray")
-
-    # plt.subplot(223)
-    # plt.title("energy")
-    # plt.imshow(energy, cmap="gray")
-    # plt.show()
-
-    return
-
-def RGBHistogram(img):
-    """
-    Plot histogram of RGB values.
-    """
-    plt.figure('RGB Histogram')
-    color = ('b','g','r')
-    for i, col in enumerate(color):
-        histr = cv2.calcHist([img],[i],None,[256],[0, 256])
-        plt.plot(histr, color = col)
-        plt.xlim([0, 256])
-    plt.show()
-        
-    return
-
-def plotRGBSpace(img):
-    """
-    Plot 3d RGB color space.
-    """
-    
-    ax = plt.axes(projection="3d")
-    
-    R_points = [ img[i][j][2] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
-    G_points = [ img[i][j][1] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
-    B_points = [ img[i][j][0] for i in range(img.shape[0]) for j in range(img.shape[1]) ]
-    
-    ax.scatter3D(R_points, G_points, B_points, color='r')
-    ax.scatter3D(255, 255, 255, c='white')
-    ax.scatter3D(0, 0, 0, c='black')
-    ax.scatter3D(255, 255, 0, c='yellow')
-    ax.scatter3D(0, 0, 255, c='blue')
-    ax.scatter3D(255, 0, 0, c='red')
-    
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    plt.show()
-    
-    return
 
 def RGBcolorClassify(img, div):
     """
@@ -261,7 +206,7 @@ def LABcolorEnergy(img, div):
     Color classes with highest frequency indicates lowest energy, vice versa.
     """
     LABimg = RGBtoLAB(img)
-    _, color_importance = LABcolorClassify(LABimg)
+    _, color_importance = LABcolorClassify(LABimg, div)
     
     img_new = np.zeros((img.shape[0], img.shape[1]))
     for i in range(img.shape[0]):
@@ -337,22 +282,13 @@ if __name__ == "__main__":
     
     #==============euclidean distance=========
 
-    # plt.figure()
-    # plt.title("LAB color (euclidean)")
-    # LABeuclidean_Eng = euclideanEnergy(img)
-    # plt.imshow(LABeuclidean_Eng, cmap="gray")
-    # plt.show()
-
-    # plt.figure()
-    # plt.title("LAB sobel + LAB color (euclidean)")
-    # LABcombine_Eng = combineEnergy(LABsobel_Eng, LABeuclidean_Eng)
-    # plt.imshow(LABcombine_Eng, cmap="gray")
-    # plt.show()
+    plt.figure()
+    plt.title("RGB sobel + LAB color")
+    RGBsobel_Eng = rgbSobelEnergy(img, 'RGB')
+    LABcolor_Eng = LABcolorEnergy(img, color_div)
+    combine_Eng = combineEnergy(RGBsobel_Eng, LABcolor_Eng)
+    plt.imshow(combine_Eng, cmap="gray")
+    cv2.imwrite(resultDir+'combine_Eng_'+str(color_div)+'.jpg', combine_Eng)
+    plt.show()
     
-    # plt.figure()
-    # plt.title("RGB sobel + LAB color (euclidean)")
-    # sobel_Eng = SobelEnergy(img, 'RGB')
-    # LABeuclidean_Eng = euclideanEnergy(img)
-    # LABcombine_Eng = combineEnergy(sobel_Eng, LABeuclidean_Eng)
-    # plt.imshow(LABcombine_Eng, cmap="gray")
-    # plt.show()
+    
