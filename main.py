@@ -24,6 +24,8 @@ from Energy import combineEnergy
 
 color_div = 52
 img_name = 'pika4.jpg'
+do_blur = True
+do_gamma = True
 
 def minimum_seam(img, map_type):
     r, c, _ = img.shape
@@ -31,17 +33,17 @@ def minimum_seam(img, map_type):
     if map_type=='RGBsobel':
         energy_map = rgbSobelEnergy(img, 'RGB')
     elif map_type=='RGBcolor':
-        energy_map = RGBcolorEnergy(img, color_div)
+        energy_map = RGBcolorEnergy(img, color_div, do_blur)
     elif map_type=='RGBcombine':
-        energy_map = combineEnergy(rgbSobelEnergy(img, 'RGB'), RGBcolorEnergy(img,color_div))
+        energy_map = combineEnergy(rgbSobelEnergy(img, 'RGB'), RGBcolorEnergy(img,color_div,do_blur), do_gamma)
     elif map_type=='LABsobel':
         energy_map = labSobelEnergy(img)
     elif map_type=='LABcolor':
-        energy_map = LABcolorEnergy(img, color_div)
+        energy_map = LABcolorEnergy(img, color_div, do_blur)
     elif map_type=='LABcombine':
-        energy_map = combineEnergy(labSobelEnergy(img), LABcolorEnergy(img))
+        energy_map = combineEnergy(labSobelEnergy(img), LABcolorEnergy(img,color_div,do_blur), do_gamma)
     elif map_type=='RGBsobelLABcolorcombine':
-        energy_map = combineEnergy(rgbSobelEnergy(img, 'RGB'), LABcolorEnergy(img,color_div))
+        energy_map = combineEnergy(rgbSobelEnergy(img, 'RGB'), LABcolorEnergy(img,color_div,do_blur), do_gamma)
 
     # Show carving process
     # plt.imshow(energy_map, cmap="gray")
