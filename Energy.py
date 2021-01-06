@@ -54,19 +54,49 @@ def SobelEnergy(inputImage, colorType):
 
     return result
 
+def euclideanEnergy(inputImage):
+    img = np.array(inputImage)
+    img = RGBtoLAB(img)
+    width, height, _ = img.shape
+
+    EUx = np.zeros ([width, height])
+    EUy = np.zeros ([width, height])
+    result = np.zeros ([width, height])
+
+    for i in range(width-2):
+        for j in range(height-2):
+            EUx[i, j] = np.linalg.norm(img[i, j+1] - img[i, j])
+            EUy[i, j] = np.linalg.norm(img[i+1, j] - img[i, j])
+
+    result = EUx + EUy
+    result *= 255.0 / np.max(result)
+
+    # plt.figure()
+    # plt.subplot(221)
+    # plt.imshow(inputImage)
+    # plt.subplot(222)
+    # plt.imshow(EUx, cmap="gray")
+    # plt.subplot(223)
+    # plt.imshow(EUy, cmap="gray")
+    # plt.subplot(224)
+    # plt.imshow(result, cmap="gray")
+    # plt.show()
+
+    return result
+
 def plotProcess(imx, imy, energy):
-    plt.subplot(221)
+    
     plt.title("imx")
     plt.imshow(imx, cmap="gray")
 
-    plt.subplot(222)
-    plt.title("imy")
-    plt.imshow(imy, cmap="gray")
+    # plt.subplot(222)
+    # plt.title("imy")
+    # plt.imshow(imy, cmap="gray")
 
-    plt.subplot(223)
-    plt.title("energy")
-    plt.imshow(energy, cmap="gray")
-    plt.show()
+    # plt.subplot(223)
+    # plt.title("energy")
+    # plt.imshow(energy, cmap="gray")
+    # plt.show()
 
     return
 
@@ -267,7 +297,7 @@ def LABcolorEnergy(img):
     return img_new
 
 def combineEnergy(sobel_Eng, color_Eng):
-    combine_Eng = sobel_Eng*1.3 + color_Eng
+    combine_Eng = sobel_Eng*1.5 + color_Eng
     max_val = np.max(combine_Eng)
     combine_Eng = combine_Eng * (255/max_val)
 
@@ -275,7 +305,7 @@ def combineEnergy(sobel_Eng, color_Eng):
 
 if __name__ == "__main__":
 
-    resultDir = 'dolphin_result/'
+    resultDir = 'dolphin_eu_result/'
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
@@ -303,9 +333,9 @@ if __name__ == "__main__":
     plt.figure('LAB color space')
     plt.subplot(221)
     plt.title("LAB Sobel Energy")
-    LABsobel_Eng = SobelEnergy(img, 'LAB')
-    plt.imshow(LABsobel_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'LABsobel_Eng.jpg', LABsobel_Eng)
+    LABeuclidean_Eng = euclideanEnergy(img)
+    plt.imshow(LABeuclidean_Eng, cmap="gray")
+    cv2.imwrite(resultDir+'LABeuclidean_Eng.jpg', LABeuclidean_Eng)
     
     plt.subplot(222)
     plt.title("LAB Color Energy")
@@ -315,10 +345,24 @@ if __name__ == "__main__":
 
     plt.subplot(223)
     plt.title("LAB Combined Energy")
-    LABcombine_Eng = combineEnergy(sobel_Eng, LABcolor_Eng)
+    LABcombine_Eng = combineEnergy(LABeuclidean_Eng, LABcolor_Eng)
     plt.imshow(LABcombine_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABcombine_Eng.jpg', LABcombine_Eng)
     plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # img = cv2.imread('./image/pika.png')
     # RGBHistogram(img)
