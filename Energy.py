@@ -1,3 +1,7 @@
+"""
+with gaussian blur in color energy
+"""
+
 import os
 import numpy as np
 from matplotlib import pyplot as plt
@@ -57,9 +61,9 @@ def rgbSobelEnergy(inputImage, colorType):
 
     return result
 
-def labSobelEnergy(inputImage):
+def labSobelEnergy(inputImage): # Euclidean energy
     """
-    Return LAB color energy map.
+    Return LAB sobel energy map.
     """
     img = np.array(inputImage)
     img = RGBtoLAB(img)
@@ -76,6 +80,10 @@ def labSobelEnergy(inputImage):
 
     result = EUx + EUy
     result *= 255.0 / np.max(result)
+    
+    # keep value higer than mean, (denoise)
+    mask = result > np.mean(np.unique(result))
+    result = result * mask
 
     return result
 
@@ -148,8 +156,10 @@ def RGBcolorEnergy(img, div):
             class_num = str(val_R) + str(val_G) + str(val_B)
             
             img_new[i][j] = color_importance[class_num]
-    
-    return img_new
+
+    blur_img = filters.gaussian_filter(img_new, sigma=1)
+
+    return blur_img
 
 def LABcolorClassify(img, div):
     """
@@ -220,7 +230,9 @@ def LABcolorEnergy(img, div):
             
             img_new[i][j] = color_importance[class_num]
     
-    return img_new
+    blur_img = filters.gaussian_filter(img_new, sigma=1)
+
+    return blur_img
 
 def combineEnergy(sobel_Eng, color_Eng):
     combine_Eng = sobel_Eng*1.5 + color_Eng
