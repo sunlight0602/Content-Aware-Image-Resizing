@@ -26,7 +26,7 @@ from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
 color_div = 52
-img_name = 'pika4.jpg'
+img_name = 'human1.jpg'
 do_blur = True
 do_gamma = True
 
