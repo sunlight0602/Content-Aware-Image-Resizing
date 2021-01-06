@@ -8,10 +8,10 @@ from collections import defaultdict
 
 from CIELAB_color_space import RGBtoLAB
 
-RGB_color_div = 50
-img_name = 'beach.jpg'
+color_div = 128
+img_name = 'human2.jpg'
 
-def SobelEnergy(inputImage, colorType):
+def rgbSobelEnergy(inputImage, colorType):
     img = np.array(inputImage)
 
     if colorType == 'LAB':
@@ -57,14 +57,17 @@ def SobelEnergy(inputImage, colorType):
 
     return result
 
-def euclideanEnergy(inputImage):
+def labSobelEnergy(inputImage):
+    """
+    Return LAB color energy map.
+    """
     img = np.array(inputImage)
     img = RGBtoLAB(img)
     width, height, _ = img.shape
 
-    EUx = np.zeros ([width, height])
-    EUy = np.zeros ([width, height])
-    result = np.zeros ([width, height])
+    EUx = np.zeros([width, height])
+    EUy = np.zeros([width, height])
+    result = np.zeros([width, height])
 
     for i in range(width-2):
         for j in range(height-2):
@@ -73,17 +76,6 @@ def euclideanEnergy(inputImage):
 
     result = EUx + EUy
     result *= 255.0 / np.max(result)
-
-    # plt.figure()
-    # plt.subplot(221)
-    # plt.imshow(inputImage)
-    # plt.subplot(222)
-    # plt.imshow(EUx, cmap="gray")
-    # plt.subplot(223)
-    # plt.imshow(EUy, cmap="gray")
-    # plt.subplot(224)
-    # plt.imshow(result, cmap="gray")
-    # plt.show()
 
     return result
 
@@ -152,7 +144,7 @@ def RGBcolorClassify(img, div):
     -------
     color_dict : dict
         key has 3 digits, representing R,G,B value respectively
-        digits range from 0~5, calculated by floor(value/51)
+        digits range from 0~int(255/div)
         
         value is the number of pixels of the color class
     """
@@ -170,24 +162,8 @@ def RGBcolorClassify(img, div):
             
             color_freq[class_num] += 1
             
-    # Importance
-    # total_pixel = sum(color_freq.values())
-    # importance = [ [k, v/total_pixel] for k,v in color_freq.items() ]
-    # importance.sort(key = lambda x: x[1])
-    # keys = [ e[0] for e in importance ]
-    # values = [ e[1] for e in importance ]
-    # values.reverse()
-    
-    # importance = [ [keys[i], values[i]] for i in range(len(keys)) ]
-    
-    # num = 255/importance[0][1]
-    # for i, _ in enumerate(importance):
-    #     importance[i][1] = importance[i][1] * num
-        
-    # color_importance = defaultdict(int)
-    # for ele in importance:
-    #     color_importance[ele[0]] = ele[1]
-    
+
+    # Importance    
     total_pixel = sum(color_freq.values())
 
     importance = [ [k, v/total_pixel] for k,v in color_freq.items() ]
@@ -211,6 +187,8 @@ def RGBcolorClassify(img, div):
 def RGBcolorEnergy(img, div):
     """
     Color classes with highest frequency indicates lowest energy, vice versa.
+    
+    Return RGB color energy map.
     """
     _, color_importance = RGBcolorClassify(img, div)
     
@@ -228,7 +206,7 @@ def RGBcolorEnergy(img, div):
     
     return img_new
 
-def LABcolorClassify(img):
+def LABcolorClassify(img, div):
     """
     Parameters
     ----------
@@ -252,8 +230,8 @@ def LABcolorClassify(img):
         for j in range(img.shape[1]):
             
             val_L = int(img[i][j][0] / 25)
-            val_a = int(img[i][j][1]+128 / 51)
-            val_b = int(img[i][j][2]+128 / 51)
+            val_a = int(img[i][j][1]+128 / div)
+            val_b = int(img[i][j][2]+128 / div)
             class_num = str(val_L) + str(val_a) + str(val_b)
             
             color_freq[class_num] += 1
@@ -278,7 +256,7 @@ def LABcolorClassify(img):
     
     return color_freq, color_importance
 
-def LABcolorEnergy(img):
+def LABcolorEnergy(img, div):
     """
     Color classes with highest frequency indicates lowest energy, vice versa.
     """
@@ -291,8 +269,8 @@ def LABcolorEnergy(img):
             
             # 可以跟 LABcolorClassify 合併加速
             val_L = int(LABimg[i][j][0] / 25)
-            val_a = int(LABimg[i][j][1]+128 / 51)
-            val_b = int(LABimg[i][j][2]+128 / 51)
+            val_a = int(LABimg[i][j][1]+128 / div)
+            val_b = int(LABimg[i][j][2]+128 / div)
             class_num = str(val_L) + str(val_a) + str(val_b)
             
             img_new[i][j] = color_importance[class_num]
@@ -314,39 +292,67 @@ if __name__ == "__main__":
 
     img = cv2.imread('./image/'+img_name)
 
-    plt.subplot(231)
-    # plt.title("RGB Sobel Energy")
-    sobel_Eng = SobelEnergy(img, 'RGB')
-    plt.imshow(sobel_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'RGBsobel_Eng.jpg', sobel_Eng)
+    plt.figure()
+    # plt.subplot(231)
+    plt.title("RGB sobel")
+    RGBsobel_Eng = rgbSobelEnergy(img, 'RGB')
+    plt.imshow(RGBsobel_Eng, cmap="gray")
+    cv2.imwrite(resultDir+'RGBsobel_Eng.jpg', RGBsobel_Eng)
 
-    plt.subplot(232)
-    # plt.title("RGB Color Energy")
-    RGBcolor_Eng = RGBcolorEnergy(img, RGB_color_div)
+    plt.figure()
+    # plt.subplot(232)
+    plt.title("RGB color")
+    RGBcolor_Eng = RGBcolorEnergy(img, color_div)
     plt.imshow(RGBcolor_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'RGBcolor_Eng_'+ str(RGB_color_div) +'.jpg', RGBcolor_Eng)
+    cv2.imwrite(resultDir+'RGBcolor_Eng_'+ str(color_div) +'.jpg', RGBcolor_Eng)
 
-    plt.subplot(233)
-    # plt.title("RGB Combined Energy")
-    combine_Eng = combineEnergy(sobel_Eng, RGBcolor_Eng)
+    plt.figure()
+    # plt.subplot(233)
+    plt.title("RGB sobel + color")
+    combine_Eng = combineEnergy(RGBsobel_Eng, RGBcolor_Eng)
     plt.imshow(combine_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'RGBcombine_Eng_'+ str(RGB_color_div) +'.jpg', combine_Eng)
+    cv2.imwrite(resultDir+'RGBcombine_Eng_'+ str(color_div) +'.jpg', combine_Eng)
 
-    plt.subplot(234)
-    # plt.title("LAB Sobel Energy")
-    LABsobel_Eng = SobelEnergy(img, 'LAB')
+    plt.figure()
+    # plt.subplot(234)
+    plt.title("LAB sobel")
+    LABsobel_Eng = labSobelEnergy(img)
     plt.imshow(LABsobel_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABsobel_Eng.jpg', LABsobel_Eng)
     
-    plt.subplot(235)
-    # plt.title("LAB Color Energy")
-    LABcolor_Eng = LABcolorEnergy(img)
+    plt.figure()
+    # plt.subplot(235)
+    plt.title("LAB color")
+    LABcolor_Eng = LABcolorEnergy(img, color_div)
     plt.imshow(LABcolor_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'LABcolor_Eng.jpg', LABcolor_Eng)
+    cv2.imwrite(resultDir+'LABcolor_Eng_'+str(color_div)+'.jpg', LABcolor_Eng)
 
-    plt.subplot(236)
-    # plt.title("LAB Combined Energy")
-    LABcombine_Eng = combineEnergy(sobel_Eng, LABcolor_Eng)
+    plt.figure()
+    # plt.subplot(236)
+    plt.title("LAB sobel + color")
+    LABcombine_Eng = combineEnergy(LABsobel_Eng, LABcolor_Eng)
     plt.imshow(LABcombine_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'LABcombine_Eng.jpg', LABcombine_Eng)
+    cv2.imwrite(resultDir+'LABcombine_Eng_'+str(color_div)+'.jpg', LABcombine_Eng)
     plt.show()
+    
+    #==============euclidean distance=========
+
+    # plt.figure()
+    # plt.title("LAB color (euclidean)")
+    # LABeuclidean_Eng = euclideanEnergy(img)
+    # plt.imshow(LABeuclidean_Eng, cmap="gray")
+    # plt.show()
+
+    # plt.figure()
+    # plt.title("LAB sobel + LAB color (euclidean)")
+    # LABcombine_Eng = combineEnergy(LABsobel_Eng, LABeuclidean_Eng)
+    # plt.imshow(LABcombine_Eng, cmap="gray")
+    # plt.show()
+    
+    # plt.figure()
+    # plt.title("RGB sobel + LAB color (euclidean)")
+    # sobel_Eng = SobelEnergy(img, 'RGB')
+    # LABeuclidean_Eng = euclideanEnergy(img)
+    # LABcombine_Eng = combineEnergy(sobel_Eng, LABeuclidean_Eng)
+    # plt.imshow(LABcombine_Eng, cmap="gray")
+    # plt.show()

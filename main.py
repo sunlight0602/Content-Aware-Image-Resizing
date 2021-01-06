@@ -16,29 +16,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import trange
 
-from Energy import SobelEnergy
+from Energy import rgbSobelEnergy
+from Energy import labSobelEnergy
 from Energy import RGBcolorEnergy
 from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
-RGB_color_div = 75
-img_name = 'beach.jpg'
+RGB_color_div = 128
+img_name = 'human2.jpg'
 
 def minimum_seam(img, map_type):
     r, c, _ = img.shape
 
     if map_type=='RGBsobel':
-        energy_map = SobelEnergy(img, 'RGB')
+        energy_map = rgbSobelEnergy(img, 'RGB')
     elif map_type=='RGBcolor':
         energy_map = RGBcolorEnergy(img,RGB_color_div)
     elif map_type=='RGBcombine':
-        energy_map = combineEnergy(SobelEnergy(img, 'RGB'), RGBcolorEnergy(img,RGB_color_div))
+        energy_map = combineEnergy(rgbSobelEnergy(img, 'RGB'), RGBcolorEnergy(img,RGB_color_div))
     elif map_type=='LABsobel':
-        energy_map = SobelEnergy(img, 'LAB')
+        energy_map = labSobelEnergy(img)
     elif map_type=='LABcolor':
         energy_map = LABcolorEnergy(img)
     elif map_type=='LABcombine':
-        energy_map = combineEnergy(SobelEnergy(img, 'LAB'), LABcolorEnergy(img))
+        energy_map = combineEnergy(labSobelEnergy(img), LABcolorEnergy(img))
 
     # Show carving process
     # plt.imshow(energy_map, cmap="gray")
@@ -119,7 +120,7 @@ if __name__=='__main__':
     
     # Carve and show
     # RGB sobel
-    print("\nDoing RGBSobel Energy...")
+    print("\nDoing RGB Sobel Energy...")
     plt.subplot(231)
     # plt.title("RGB Sobel Energy")
     rgbsobel = crop_c(img, 0.8, 'RGBsobel')
@@ -129,7 +130,7 @@ if __name__=='__main__':
     cv2.imwrite(fileName, rgbsobel)
 
     # RGB color
-    print("\nDoing RGBColor Energy...")
+    print("\nDoing RGB Color Energy...")
     plt.subplot(232)
     # plt.title("RGB Color Energy")
     rgbcolor = crop_c(img, 0.8, 'RGBcolor')
@@ -147,7 +148,7 @@ if __name__=='__main__':
     cv2.imwrite(fileName, rgbcombine)
 
     # LAB sobel
-    print("\nDoing LABSobel Energy...")
+    print("\nDoing LAB Sobel Energy...")
     plt.subplot(234)
     # plt.title("LAB Sobel Energy")
     labsobel = crop_c(img, 0.8, 'LABsobel')
