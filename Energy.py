@@ -1,5 +1,7 @@
 """
 with gaussian blur in color energy
+color_div = 52, 86, 128
+adjust parameters in line16~19
 """
 
 import os
@@ -7,13 +9,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.ndimage import filters
 import cv2
-from mpl_toolkits import mplot3d
 from collections import defaultdict
 
 from CIELAB_color_space import RGBtoLAB
 
-color_div = 86
+color_div = 52
 img_name = 'pika4.jpg'
+do_blur = True
+do_gamma = True
 
 def rgbSobelEnergy(inputImage, colorType):
     img = np.array(inputImage)
@@ -137,7 +140,7 @@ def RGBcolorClassify(img, div):
     
     return color_freq, color_importance
 
-def RGBcolorEnergy(img, div):
+def RGBcolorEnergy(img, div, do_blur):
     """
     Color classes with highest frequency indicates lowest energy, vice versa.
     
@@ -159,7 +162,10 @@ def RGBcolorEnergy(img, div):
 
     blur_img = filters.gaussian_filter(img_new, sigma=1)
 
-    return blur_img
+    if do_blur == True:
+        return blur_img
+    else:
+        return img_new
 
 def LABcolorClassify(img, div):
     """
@@ -211,7 +217,7 @@ def LABcolorClassify(img, div):
     
     return color_freq, color_importance
 
-def LABcolorEnergy(img, div):
+def LABcolorEnergy(img, div, do_blur):
     """
     Color classes with highest frequency indicates lowest energy, vice versa.
     """
@@ -232,10 +238,20 @@ def LABcolorEnergy(img, div):
     
     blur_img = filters.gaussian_filter(img_new, sigma=1)
 
-    return blur_img
+    if do_blur == True:
+        return blur_img
+    else:
+        return img_new
 
-def combineEnergy(sobel_Eng, color_Eng):
-    combine_Eng = sobel_Eng*1.5 + color_Eng
+def combineEnergy(edge_Eng, color_Eng, do_gamma):
+    
+    if do_gamma == True:
+        gamma = 0.4
+        gamma_trans = np.array(255*(edge_Eng / 255) ** gamma, dtype = 'uint8')
+        combine_Eng = gamma_trans + color_Eng
+    else:
+        combine_Eng = edge_Eng + color_Eng
+    
     max_val = np.max(combine_Eng)
     combine_Eng = combine_Eng * (255/max_val)
 
@@ -259,14 +275,14 @@ if __name__ == "__main__":
     plt.figure()
     # plt.subplot(232)
     plt.title("RGB color")
-    RGBcolor_Eng = RGBcolorEnergy(img, color_div)
+    RGBcolor_Eng = RGBcolorEnergy(img, color_div, do_blur)
     plt.imshow(RGBcolor_Eng, cmap="gray")
     cv2.imwrite(resultDir+'RGBcolor_Eng_'+ str(color_div) +'.jpg', RGBcolor_Eng)
 
     plt.figure()
     # plt.subplot(233)
     plt.title("RGB sobel + color")
-    combine_Eng = combineEnergy(RGBsobel_Eng, RGBcolor_Eng)
+    combine_Eng = combineEnergy(RGBsobel_Eng, RGBcolor_Eng, do_gamma)
     plt.imshow(combine_Eng, cmap="gray")
     cv2.imwrite(resultDir+'RGBcombine_Eng_'+ str(color_div) +'.jpg', combine_Eng)
 
@@ -280,14 +296,14 @@ if __name__ == "__main__":
     plt.figure()
     # plt.subplot(235)
     plt.title("LAB color")
-    LABcolor_Eng = LABcolorEnergy(img, color_div)
+    LABcolor_Eng = LABcolorEnergy(img, color_div, do_blur)
     plt.imshow(LABcolor_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABcolor_Eng_'+str(color_div)+'.jpg', LABcolor_Eng)
 
     plt.figure()
     # plt.subplot(236)
     plt.title("LAB sobel + color")
-    LABcombine_Eng = combineEnergy(LABsobel_Eng, LABcolor_Eng)
+    LABcombine_Eng = combineEnergy(LABsobel_Eng, LABcolor_Eng, do_gamma)
     plt.imshow(LABcombine_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABcombine_Eng_'+str(color_div)+'.jpg', LABcombine_Eng)
     plt.show()
@@ -297,8 +313,8 @@ if __name__ == "__main__":
     plt.figure()
     plt.title("RGB sobel + LAB color")
     RGBsobel_Eng = rgbSobelEnergy(img, 'RGB')
-    LABcolor_Eng = LABcolorEnergy(img, color_div)
-    combine_Eng = combineEnergy(RGBsobel_Eng, LABcolor_Eng)
+    LABcolor_Eng = LABcolorEnergy(img, color_div, do_blur)
+    combine_Eng = combineEnergy(RGBsobel_Eng, LABcolor_Eng, do_gamma)
     plt.imshow(combine_Eng, cmap="gray")
     cv2.imwrite(resultDir+'combine_Eng_'+str(color_div)+'.jpg', combine_Eng)
     plt.show()
