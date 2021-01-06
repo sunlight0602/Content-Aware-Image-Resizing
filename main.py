@@ -21,8 +21,8 @@ from Energy import RGBcolorEnergy
 from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
-RGB_color_div = 50
-img_name = 'pika4.jpg'
+RGB_color_div = 75
+img_name = 'beach.jpg'
 
 def minimum_seam(img, map_type):
     r, c, _ = img.shape

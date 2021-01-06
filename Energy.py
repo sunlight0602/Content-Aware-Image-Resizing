@@ -9,7 +9,7 @@ from collections import defaultdict
 from CIELAB_color_space import RGBtoLAB
 
 RGB_color_div = 50
-img_name = 'pika4.jpg'
+img_name = 'beach.jpg'
 
 def SobelEnergy(inputImage, colorType):
     img = np.array(inputImage)
