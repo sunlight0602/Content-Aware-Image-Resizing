@@ -326,8 +326,8 @@ def combineEnergy(Edge_Eng, color_Eng, do_gamma):
 
 if __name__ == "__main__":
 
-    img = cv2.imread('./image/bench.jpg')
-    resultDir = 'bench'
+    img = cv2.imread('./image/dolphin.jpg')
+    resultDir = 'dolphin'
 
     do_blur = True
     do_gamma = True

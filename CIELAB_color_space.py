@@ -1,5 +1,7 @@
 import numpy as np
 import math
+from matplotlib import pyplot as plt
+import cv2
 
 def RGBtoLAB(img):
     """
@@ -59,3 +61,16 @@ def L_func(Y, Yn):
         L = 903.3 * (Y/Yn)
     
     return L
+
+if __name__ == "__main__":
+
+    img = cv2.imread('./image/dolphin.jpg')
+
+    plt.figure('RGB color space')
+    plt.title("RGB Sobel Energy")
+
+    img_Lab = RGBtoLAB(img)
+    plt.imshow(img_Lab)
+    plt.show()
+
+    cv2.imwrite('img_Lab.jpg', img_Lab)
