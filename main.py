@@ -22,7 +22,7 @@ from Energy import RGBcolorEnergy
 from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
-RGB_color_div = 128
+color_div = 128
 img_name = 'human2.jpg'
 
 def minimum_seam(img, map_type):
@@ -31,9 +31,9 @@ def minimum_seam(img, map_type):
     if map_type=='RGBsobel':
         energy_map = rgbSobelEnergy(img, 'RGB')
     elif map_type=='RGBcolor':
-        energy_map = RGBcolorEnergy(img,RGB_color_div)
+        energy_map = RGBcolorEnergy(img,color_div)
     elif map_type=='RGBcombine':
-        energy_map = combineEnergy(rgbSobelEnergy(img, 'RGB'), RGBcolorEnergy(img,RGB_color_div))
+        energy_map = combineEnergy(rgbSobelEnergy(img, 'RGB'), RGBcolorEnergy(img,color_div))
     elif map_type=='LABsobel':
         energy_map = labSobelEnergy(img)
     elif map_type=='LABcolor':
@@ -135,7 +135,7 @@ if __name__=='__main__':
     # plt.title("RGB Color Energy")
     rgbcolor = crop_c(img, 0.8, 'RGBcolor')
     plt.imshow(cv2.cvtColor(rgbcolor, cv2.COLOR_BGR2RGB))
-    fileName = resultDir + 'rgbcolor_' + str(RGB_color_div) + '.jpg'
+    fileName = resultDir + 'rgbcolor_' + str(color_div) + '.jpg'
     cv2.imwrite(fileName, rgbcolor)
 
     # RGB sobel + color
@@ -144,7 +144,7 @@ if __name__=='__main__':
     # plt.title("RGB Combine Energy")
     rgbcombine = crop_c(img, 0.8, 'RGBcombine')
     plt.imshow(cv2.cvtColor(rgbcombine, cv2.COLOR_BGR2RGB))
-    fileName = resultDir + 'rgbcombine_' + str(RGB_color_div) + '.jpg'
+    fileName = resultDir + 'rgbcombine_' + str(color_div) + '.jpg'
     cv2.imwrite(fileName, rgbcombine)
 
     # LAB sobel
@@ -162,7 +162,7 @@ if __name__=='__main__':
     # plt.title("LAB color Energy")
     labcolor = crop_c(img, 0.8, 'LABcolor')
     plt.imshow(cv2.cvtColor(labcolor, cv2.COLOR_BGR2RGB))
-    fileName = resultDir + 'labcolor' + '.jpg'
+    fileName = resultDir + 'labcolor_' + str(color_div) + '.jpg'
     cv2.imwrite(fileName, labcolor)
 
     # LAB sobel + color
@@ -171,7 +171,7 @@ if __name__=='__main__':
     # plt.title("LAB Combine Energy")
     labcombine = crop_c(img, 0.8, 'LABcombine')
     plt.imshow(cv2.cvtColor(labcombine, cv2.COLOR_BGR2RGB))
-    fileName = resultDir + 'labcombine' + '.jpg'
+    fileName = resultDir + 'labcombine_' + str(color_div) + '.jpg'
     cv2.imwrite(fileName, labcombine)
     
     plt.show()
