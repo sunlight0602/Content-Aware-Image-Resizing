@@ -25,8 +25,8 @@ from Energy import RGBcolorEnergy
 from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
-color_div = 52
-img_name = 'human1.jpg'
+color_div = 128
+img_name = 'human2.jpg'
 do_blur = True
 do_gamma = True
 
