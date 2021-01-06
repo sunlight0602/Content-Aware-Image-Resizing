@@ -71,6 +71,10 @@ def euclideanEnergy(inputImage):
     result = EUx + EUy
     result *= 255.0 / np.max(result)
 
+    # keep value higer than mean
+    mask = result > np.mean(np.unique(result))
+    result = result * mask
+
     # plt.figure()
     # plt.subplot(221)
     # plt.imshow(inputImage)
@@ -223,7 +227,9 @@ def RGBcolorEnergy(img):
             
             img_new[i][j] = color_importance[class_num]
     
-    return img_new
+    blur_img = filters.gaussian_filter(img_new, sigma=1)
+
+    return blur_img
 
 def LABcolorClassify(img):
     """
@@ -294,7 +300,9 @@ def LABcolorEnergy(img):
             
             img_new[i][j] = color_importance[class_num]
     
-    return img_new
+    blur_img = filters.gaussian_filter(img_new, sigma=1)
+    
+    return blur_img
 
 def combineEnergy(sobel_Eng, color_Eng):
     combine_Eng = sobel_Eng*1.5 + color_Eng
@@ -335,13 +343,13 @@ if __name__ == "__main__":
     plt.title("LAB Sobel Energy")
     LABeuclidean_Eng = euclideanEnergy(img)
     plt.imshow(LABeuclidean_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'LABeuclidean_Eng.jpg', LABeuclidean_Eng)
+    #cv2.imwrite(resultDir+'LABeuclidean_Eng.jpg', LABeuclidean_Eng)
     
     plt.subplot(222)
     plt.title("LAB Color Energy")
     LABcolor_Eng = LABcolorEnergy(img)
     plt.imshow(LABcolor_Eng, cmap="gray")
-    cv2.imwrite(resultDir+'LABcolor_Eng.jpg', LABcolor_Eng)
+    #cv2.imwrite(resultDir+'LABcolor_Eng.jpg', LABcolor_Eng)
 
     plt.subplot(223)
     plt.title("LAB Combined Energy")
@@ -349,32 +357,3 @@ if __name__ == "__main__":
     plt.imshow(LABcombine_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABcombine_Eng.jpg', LABcombine_Eng)
     plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # img = cv2.imread('./image/pika.png')
-    # RGBHistogram(img)
-    
-    # plt.subplot(224)
-    # plt.title("LAB image")
-    # img_LAB = RGBtoLAB(img)
-    # print(np.max(img_LAB[:, :, 0]))
-    # plt.imshow(img_LAB[:, :, 0])
-
-    # img = cv2.imread('./image/castle.jpg')
-    # plotRGBSpace(img)
-    
-    # img = cv2.imread('./image/pika2.png')
-    # color_freq, color_importance = colorClassify(img)

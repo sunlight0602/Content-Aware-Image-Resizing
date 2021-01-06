@@ -29,13 +29,15 @@ def minimum_seam(img, map_type):
     elif map_type=='RGBcolor':
         energy_map = RGBcolorEnergy(img)
     elif map_type=='RGBcombine':
-        energy_map = combineEnergy(SobelEnergy(img, 'RGB'), LABcolorEnergy(img))
+        energy_map = combineEnergy(SobelEnergy(img, 'RGB'), RGBcolorEnergy(img))
     elif map_type=='LABeuclidean':
         energy_map = euclideanEnergy(img)
     elif map_type=='LABcolor':
         energy_map = LABcolorEnergy(img)
     elif map_type=='LABcombine':
-        energy_map = combineEnergy(SobelEnergy(img, 'LAB'), LABcolorEnergy(img))
+        energy_map = combineEnergy(euclideanEnergy(img), LABcolorEnergy(img))
+    else:
+        print("Map type not found!")
 
     M = energy_map.copy()
     backtrack = np.zeros_like(M, dtype=np.int)
@@ -93,7 +95,7 @@ def crop_c(img, scale_c, map_type):
 
 if __name__=='__main__':
     
-    resultDir = 'dolphin_eu_result/'
+    resultDir = 'dolphin_eu_blur_result/'
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
@@ -114,7 +116,6 @@ if __name__=='__main__':
     plt.title("RGB Sobel Energy")
     rgbsobel = crop_c(img, 0.8, 'RGBsobel')
     rgbsobel = rgbsobel.astype(np.uint8)
-    print(rgbsobel.dtype) 
     plt.imshow(cv2.cvtColor(rgbsobel, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'rgbsobel' + '.jpg'
     cv2.imwrite(fileName, rgbsobel)
@@ -135,9 +136,9 @@ if __name__=='__main__':
     fileName = resultDir + 'rgbcombine' + '.jpg'
     cv2.imwrite(fileName, rgbcombine)
 
-    print("Doing LABSobel Energy...")
+    print("Doing euclidean Energy...")
     plt.subplot(234)
-    plt.title("LAB Sobel Energy")
+    plt.title("LAB euclidean Energy")
     labsobel = crop_c(img, 0.8, 'LABeuclidean')
     plt.imshow(cv2.cvtColor(labsobel, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'labsobel' + '.jpg'
