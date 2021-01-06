@@ -14,8 +14,8 @@ from collections import defaultdict
 from CIELAB_color_space import RGBtoLAB
 
 color_div = 52
-img_name = 'pika4.jpg'
-do_blur = True
+img_name = 'dolphin.jpg'
+do_blur = False
 do_gamma = True
 
 def rgbSobelEnergy(inputImage, colorType):

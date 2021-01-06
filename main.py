@@ -26,8 +26,8 @@ from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
 color_div = 52
-img_name = 'pika4.jpg'
-do_blur = True
+img_name = 'dolphin.jpg'
+do_blur = False
 do_gamma = True
 
 def minimum_seam(img, map_type):
