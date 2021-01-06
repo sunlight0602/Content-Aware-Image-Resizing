@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from tqdm import trange
 
 from Energy import SobelEnergy
+from Energy import euclideanEnergy
 from Energy import RGBcolorEnergy
 from Energy import LABcolorEnergy
 from Energy import combineEnergy
@@ -29,8 +30,8 @@ def minimum_seam(img, map_type):
         energy_map = RGBcolorEnergy(img)
     elif map_type=='RGBcombine':
         energy_map = combineEnergy(SobelEnergy(img, 'RGB'), LABcolorEnergy(img))
-    elif map_type=='LABsobel':
-        energy_map = SobelEnergy(img, 'LAB')
+    elif map_type=='LABeuclidean':
+        energy_map = euclideanEnergy(img)
     elif map_type=='LABcolor':
         energy_map = LABcolorEnergy(img)
     elif map_type=='LABcombine':
@@ -92,13 +93,12 @@ def crop_c(img, scale_c, map_type):
 
 if __name__=='__main__':
     
-    resultDir = 'dolphin_result/'
+    resultDir = 'dolphin_eu_result/'
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
     # Read image
     img = cv2.imread('./image/dolphin.jpg')
-    saveName = 'Edge_enhance_'
     if img is None:
         sys.exit("no img")
     
@@ -138,11 +138,10 @@ if __name__=='__main__':
     print("Doing LABSobel Energy...")
     plt.subplot(234)
     plt.title("LAB Sobel Energy")
-    labsobel = crop_c(img, 0.8, 'LABsobel')
+    labsobel = crop_c(img, 0.8, 'LABeuclidean')
     plt.imshow(cv2.cvtColor(labsobel, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'labsobel' + '.jpg'
     cv2.imwrite(fileName, labsobel)
-
 
     print("Doing LAB Color Energy...")
     plt.subplot(235)
