@@ -21,21 +21,21 @@ from Energy import RGBcolorEnergy
 from Energy import LABcolorEnergy
 from Energy import combineEnergy
 
-def minimum_seam(img, map_type):
+def minimum_seam(img, map_type, do_blur, do_gamma):
     r, c, _ = img.shape
 
     if map_type=='RGBsobel':
         energy_map = SobelEnergy(img, 'RGB')
     elif map_type=='RGBcolor':
-        energy_map = RGBcolorEnergy(img)
+        energy_map = RGBcolorEnergy(img, do_blur)
     elif map_type=='RGBcombine':
-        energy_map = combineEnergy(SobelEnergy(img, 'RGB'), RGBcolorEnergy(img))
+        energy_map = combineEnergy(SobelEnergy(img, 'RGB'), RGBcolorEnergy(img, do_blur), do_gamma)
     elif map_type=='LABeuclidean':
         energy_map = euclideanEnergy(img)
     elif map_type=='LABcolor':
-        energy_map = LABcolorEnergy(img)
+        energy_map = LABcolorEnergy(img, do_blur)
     elif map_type=='LABcombine':
-        energy_map = combineEnergy(euclideanEnergy(img), LABcolorEnergy(img))
+        energy_map = combineEnergy(euclideanEnergy(img), LABcolorEnergy(img, do_blur), do_gamma)
     else:
         print("Map type not found!")
 
@@ -58,10 +58,10 @@ def minimum_seam(img, map_type):
 
     return M, backtrack
 
-def carve_column(img, map_type):
+def carve_column(img, map_type, do_blur, do_gamma):
     r, c, _ = img.shape
 
-    M, backtrack = minimum_seam(img, map_type)
+    M, backtrack = minimum_seam(img, map_type, do_blur, do_gamma)
 
     # 创建一个(r,c)矩阵，填充值为True
     # 后面会从值为False的图像中移除所有像素
@@ -84,25 +84,42 @@ def carve_column(img, map_type):
 
     return img
 
-def crop_c(img, scale_c, map_type):
+def crop_c(img, scale_c, map_type, do_blur, do_gamma):
     r, c, _ = img.shape
     new_c = int(scale_c * c)
 
     for i in trange(c - new_c): # use range if you don't want to use tqdm
-        img = carve_column(img, map_type)
+        img = carve_column(img, map_type, do_blur, do_gamma)
 
     return img
 
 if __name__=='__main__':
     
-    resultDir = 'dolphin_eu_blur_nonli_result/'
+    # Read image
+    img = cv2.imread('./image/bench.jpg')
+    if img is None:
+        sys.exit("no img")
+
+    resultDir = 'bench'
+
+    do_blur = True
+    do_gamma = False
+    
+    if (do_blur == True) and (do_gamma == True):
+        resultDir = resultDir + '_blur_gamma_result/'
+
+    elif (do_blur == True) and (do_gamma == False):
+        resultDir = resultDir + '_blur_result/'
+
+    elif (do_blur == False) and (do_gamma == True):
+        resultDir = resultDir + '_gamma_result/'
+
+    elif (do_blur == False) and (do_gamma == False):
+        resultDir = resultDir + '_result/'
+
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
-    # Read image
-    img = cv2.imread('./image/dolphin.jpg')
-    if img is None:
-        sys.exit("no img")
     
     # Show orig image
     # plt.subplot(221)
@@ -114,7 +131,7 @@ if __name__=='__main__':
     print("Doing RGBSobel Energy...")
     plt.subplot(231)
     plt.title("RGB Sobel Energy")
-    rgbsobel = crop_c(img, 0.8, 'RGBsobel')
+    rgbsobel = crop_c(img, 0.8, 'RGBsobel', do_blur, do_gamma)
     rgbsobel = rgbsobel.astype(np.uint8)
     plt.imshow(cv2.cvtColor(rgbsobel, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'rgbsobel' + '.jpg'
@@ -123,7 +140,7 @@ if __name__=='__main__':
     print("Doing RGBColor Energy...")
     plt.subplot(232)
     plt.title("RGB Color Energy")
-    rgbcolor = crop_c(img, 0.8, 'RGBcolor')
+    rgbcolor = crop_c(img, 0.8, 'RGBcolor', do_blur, do_gamma)
     plt.imshow(cv2.cvtColor(rgbcolor, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'rgbcolor' + '.jpg'
     cv2.imwrite(fileName, rgbcolor)
@@ -131,7 +148,7 @@ if __name__=='__main__':
     print("Doing RGB Combine Energy...")
     plt.subplot(233)
     plt.title("RGB Combine Energy")
-    rgbcombine = crop_c(img, 0.8, 'RGBcombine')
+    rgbcombine = crop_c(img, 0.8, 'RGBcombine', do_blur, do_gamma)
     plt.imshow(cv2.cvtColor(rgbcombine, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'rgbcombine' + '.jpg'
     cv2.imwrite(fileName, rgbcombine)
@@ -139,7 +156,7 @@ if __name__=='__main__':
     print("Doing euclidean Energy...")
     plt.subplot(234)
     plt.title("LAB euclidean Energy")
-    labsobel = crop_c(img, 0.8, 'LABeuclidean')
+    labsobel = crop_c(img, 0.8, 'LABeuclidean', do_blur, do_gamma)
     plt.imshow(cv2.cvtColor(labsobel, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'labsobel' + '.jpg'
     cv2.imwrite(fileName, labsobel)
@@ -147,7 +164,7 @@ if __name__=='__main__':
     print("Doing LAB Color Energy...")
     plt.subplot(235)
     plt.title("LAB color Energy")
-    labcolor = crop_c(img, 0.8, 'LABcolor')
+    labcolor = crop_c(img, 0.8, 'LABcolor', do_blur, do_gamma)
     plt.imshow(cv2.cvtColor(labcolor, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'labcolor' + '.jpg'
     cv2.imwrite(fileName, labcolor)
@@ -155,7 +172,7 @@ if __name__=='__main__':
     print("Doing LAB Combine Energy...")
     plt.subplot(236)
     plt.title("LAB Combine Energy")
-    labcombine = crop_c(img, 0.8, 'LABcombine')
+    labcombine = crop_c(img, 0.8, 'LABcombine', do_blur, do_gamma)
     plt.imshow(cv2.cvtColor(labcombine, cv2.COLOR_BGR2RGB))
     fileName = resultDir + 'labcombine' + '.jpg'
     cv2.imwrite(fileName, labcombine)

@@ -209,7 +209,7 @@ def RGBcolorClassify(img):
     
     return color_freq, color_importance
 
-def RGBcolorEnergy(img):
+def RGBcolorEnergy(img, do_blur):
     """
     Color classes with highest frequency indicates lowest energy, vice versa.
     """
@@ -229,7 +229,10 @@ def RGBcolorEnergy(img):
     
     blur_img = filters.gaussian_filter(img_new, sigma=1)
 
-    return img_new
+    if do_blur == True:
+        return blur_img
+    else:
+        return img_new
 
 def LABcolorClassify(img):
     """
@@ -281,7 +284,7 @@ def LABcolorClassify(img):
     
     return color_freq, color_importance
 
-def LABcolorEnergy(img):
+def LABcolorEnergy(img, do_blur):
     """
     Color classes with highest frequency indicates lowest energy, vice versa.
     """
@@ -301,14 +304,21 @@ def LABcolorEnergy(img):
             img_new[i][j] = color_importance[class_num]
     
     blur_img = filters.gaussian_filter(img_new, sigma=1)
-    
-    return img_new
 
-def combineEnergy(Edge_Eng, color_Eng):
+    if do_blur == True:
+        return blur_img
+    else:
+        return img_new
+
+def combineEnergy(Edge_Eng, color_Eng, do_gamma):
     gamma = 0.4
     gamma_trans = np.array(255*(Edge_Eng / 255) ** gamma, dtype = 'uint8')
 
-    combine_Eng = gamma_trans + color_Eng
+    if do_gamma == True:
+        combine_Eng = gamma_trans + color_Eng
+    else:
+        combine_Eng = Edge_Eng + color_Eng
+
     max_val = np.max(combine_Eng)
     combine_Eng = combine_Eng * (255/max_val)
 
@@ -316,11 +326,27 @@ def combineEnergy(Edge_Eng, color_Eng):
 
 if __name__ == "__main__":
 
-    resultDir = 'dolphin_eu_blur_nonli_result/'
+    img = cv2.imread('./image/bench.jpg')
+    resultDir = 'bench'
+
+    do_blur = True
+    do_gamma = True
+    
+    if (do_blur == True) and (do_gamma == True):
+        resultDir = resultDir + '_blur_gamma_result/'
+
+    elif (do_blur == True) and (do_gamma == False):
+        resultDir = resultDir + '_blur_result/'
+
+    elif (do_blur == False) and (do_gamma == True):
+        resultDir = resultDir + '_gamma_result/'
+
+    elif (do_blur == False) and (do_gamma == False):
+        resultDir = resultDir + '_result/'
+
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
-    img = cv2.imread('./image/dolphin.jpg')
 
     plt.figure('RGB color space')
     plt.subplot(221)
@@ -331,13 +357,13 @@ if __name__ == "__main__":
 
     plt.subplot(222)
     plt.title("RGB Color Energy")
-    RGBcolor_Eng = RGBcolorEnergy(img)
+    RGBcolor_Eng = RGBcolorEnergy(img, do_blur)
     plt.imshow(RGBcolor_Eng, cmap="gray")
     cv2.imwrite(resultDir+'RGBcolor_Eng.jpg', RGBcolor_Eng)
 
     plt.subplot(223)
     plt.title("RGB Combined Energy")
-    combine_Eng = combineEnergy(sobel_Eng, RGBcolor_Eng)
+    combine_Eng = combineEnergy(sobel_Eng, RGBcolor_Eng, do_gamma)
     plt.imshow(combine_Eng, cmap="gray")
     cv2.imwrite(resultDir+'RGBcombine_Eng.jpg', combine_Eng)
 
@@ -350,13 +376,13 @@ if __name__ == "__main__":
     
     plt.subplot(222)
     plt.title("LAB Color Energy")
-    LABcolor_Eng = LABcolorEnergy(img)
+    LABcolor_Eng = LABcolorEnergy(img, do_blur)
     plt.imshow(LABcolor_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABcolor_Eng.jpg', LABcolor_Eng)
 
     plt.subplot(223)
     plt.title("LAB Combined Energy")
-    LABcombine_Eng = combineEnergy(LABeuclidean_Eng, LABcolor_Eng)
+    LABcombine_Eng = combineEnergy(LABeuclidean_Eng, LABcolor_Eng, do_gamma)
     plt.imshow(LABcombine_Eng, cmap="gray")
     cv2.imwrite(resultDir+'LABcombine_Eng.jpg', LABcombine_Eng)
     plt.show()
