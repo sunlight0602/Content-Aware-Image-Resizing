@@ -8,6 +8,9 @@ with fast forward
 *Takes time*
 
 Reference: https://zhuanlan.zhihu.com/p/38974520
+
+color_div = 52, 86, 128
+adjust parameters in line28~31
 """
 import os
 import cv2
