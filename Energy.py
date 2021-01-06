@@ -229,7 +229,7 @@ def RGBcolorEnergy(img):
     
     blur_img = filters.gaussian_filter(img_new, sigma=1)
 
-    return blur_img
+    return img_new
 
 def LABcolorClassify(img):
     """
@@ -302,10 +302,13 @@ def LABcolorEnergy(img):
     
     blur_img = filters.gaussian_filter(img_new, sigma=1)
     
-    return blur_img
+    return img_new
 
-def combineEnergy(sobel_Eng, color_Eng):
-    combine_Eng = sobel_Eng*1.5 + color_Eng
+def combineEnergy(Edge_Eng, color_Eng):
+    gamma = 0.4
+    gamma_trans = np.array(255*(Edge_Eng / 255) ** gamma, dtype = 'uint8')
+
+    combine_Eng = gamma_trans + color_Eng
     max_val = np.max(combine_Eng)
     combine_Eng = combine_Eng * (255/max_val)
 
@@ -313,7 +316,7 @@ def combineEnergy(sobel_Eng, color_Eng):
 
 if __name__ == "__main__":
 
-    resultDir = 'dolphin_eu_result/'
+    resultDir = 'dolphin_eu_blur_nonli_result/'
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
@@ -343,13 +346,13 @@ if __name__ == "__main__":
     plt.title("LAB Sobel Energy")
     LABeuclidean_Eng = euclideanEnergy(img)
     plt.imshow(LABeuclidean_Eng, cmap="gray")
-    #cv2.imwrite(resultDir+'LABeuclidean_Eng.jpg', LABeuclidean_Eng)
+    cv2.imwrite(resultDir+'LABeuclidean_Eng.jpg', LABeuclidean_Eng)
     
     plt.subplot(222)
     plt.title("LAB Color Energy")
     LABcolor_Eng = LABcolorEnergy(img)
     plt.imshow(LABcolor_Eng, cmap="gray")
-    #cv2.imwrite(resultDir+'LABcolor_Eng.jpg', LABcolor_Eng)
+    cv2.imwrite(resultDir+'LABcolor_Eng.jpg', LABcolor_Eng)
 
     plt.subplot(223)
     plt.title("LAB Combined Energy")

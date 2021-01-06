@@ -95,7 +95,7 @@ def crop_c(img, scale_c, map_type):
 
 if __name__=='__main__':
     
-    resultDir = 'dolphin_eu_blur_result/'
+    resultDir = 'dolphin_eu_blur_nonli_result/'
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
 
