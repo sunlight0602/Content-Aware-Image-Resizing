@@ -1,7 +1,12 @@
 """
-with gaussian blur in color energy
-color_div = 52, 86, 128
-adjust parameters in line16~19
+Functions for drawing structure-detection maps and color-ranking maps.
+
+Adjust parameters on line19-22 for code testing.
+
+color_div : number of divisions to divide color space.
+img_name : filename of input image.
+do_blur : do gaussian-blurring on color-ranking maps.
+do_gamma : do gamma-transform on structure-detection maps.
 """
 
 import os
@@ -18,7 +23,18 @@ img_name = 'dolphin.jpg'
 do_blur = False
 do_gamma = True
 
-def rgbSobelEnergy(inputImage, colorType):
+
+def rgbSobelEnergy(inputImage, colorType='RGB'):
+    """Draw structure-detection map using Sobel-filtering.
+    Parameters
+    ----------
+    inputImage : input image.
+    colorType : set to 'LAB' if inputImage is in LAB color space. Defaults to 'RGB'.
+
+    Returns
+    -------
+    result : structure-detection map using Sobel-filtering.
+    """
     img = np.array(inputImage)
 
     if colorType == 'LAB':
@@ -64,9 +80,16 @@ def rgbSobelEnergy(inputImage, colorType):
 
     return result
 
-def labSobelEnergy(inputImage): # Euclidean energy
-    """
-    Return LAB sobel energy map.
+
+def labSobelEnergy(inputImage):
+    """Draw structure-detection map using Euclidean distance.
+    Parameters
+    ----------
+    inputImage : input image.
+
+    Returns
+    -------
+    result : structure-detection map using Euclidean distance.
     """
     img = np.array(inputImage)
     img = RGBtoLAB(img)
@@ -90,19 +113,23 @@ def labSobelEnergy(inputImage): # Euclidean energy
 
     return result
 
+
 def RGBcolorClassify(img, div):
     """
     Parameters
     ----------
-    img : input image, 3d in RGB color space
+    img : input image, 3 tunnels in RGB color space.
+    div : number of divisions to be divided.
 
     Returns
     -------
     color_dict : dict
-        key has 3 digits, representing R,G,B value respectively
-        digits range from 0~int(255/div)
-        
-        value is the number of pixels of the color class
+        Key has 3 digits, representing R,G,B value respectively.
+        Digits range from 0 ~ int(255/div).
+        Value is the number of pixels of the division.
+
+    color_importance : dict
+        color_dict with order.
     """
     
     # Classify
@@ -140,11 +167,20 @@ def RGBcolorClassify(img, div):
     
     return color_freq, color_importance
 
+
 def RGBcolorEnergy(img, div, do_blur):
-    """
-    Color classes with highest frequency indicates lowest energy, vice versa.
-    
-    Return RGB color energy map.
+    """Obtain color-ranking map based on RGB color space.
+    Parameters
+    ----------
+    img : original image.
+    div : number of divisions to be divided.
+    do_blur (bool) : conduct gaussian-filtering on output map.
+
+    Returns
+    -------
+    blur_img : color-ranking map with gaussian-filtering.
+    or
+    img_new : color-ranking map without gaussian-filtering.
     """
     _, color_importance = RGBcolorClassify(img, div)
     
@@ -167,21 +203,25 @@ def RGBcolorEnergy(img, div, do_blur):
     else:
         return img_new
 
+
 def LABcolorClassify(img, div):
-    """
+    """Divide LAB color space and give rankings to each division.
     Parameters
     ----------
-    img : input image, 3d in LAB color space
+    img : input image, 3d in LAB color space.
+    div : number of divisions to be divided.
 
     Returns
     -------
     color_dict : dict
         Key has 3 digits, representing L,a,b value respectively.
-        Devide L into 10 slots, calculated by floor(value/10) (L range 0~100).
-        Devide a into 5 slots, calculated by floor(value+128/51) (L range -128~127).
-        Devide b into 5 slots, calculated by floor(value+128/51) (L range -128~127).
+        Divide L into 10 slots, calculated by floor(value/10) (L range 0~100).
+        Divide a into 5 slots, calculated by floor(value+128/51) (L range -128~127).
+        Divide b into 5 slots, calculated by floor(value+128/51) (L range -128~127).
+        value is the number of pixels of the color class.
         
-        value is the number of pixels of the color class
+    color_importance : dict
+        color_dict with order.
     """
     
     # Classify
@@ -217,10 +257,22 @@ def LABcolorClassify(img, div):
     
     return color_freq, color_importance
 
+
 def LABcolorEnergy(img, div, do_blur):
+    """Obtain color-ranking map based on LAB color space.
+    Parameters
+    ----------
+    img : original image.
+    div : number of divisions to be divided.
+    do_blur (bool) : conduct gaussian-filtering on output map.
+
+    Returns
+    -------
+    blur_img : color-ranking map with gaussian-filtering.
+    or
+    img_new : color-ranking map without gaussian-filtering.
     """
-    Color classes with highest frequency indicates lowest energy, vice versa.
-    """
+    
     LABimg = RGBtoLAB(img)
     _, color_importance = LABcolorClassify(LABimg, div)
     
@@ -243,7 +295,19 @@ def LABcolorEnergy(img, div, do_blur):
     else:
         return img_new
 
+
 def combineEnergy(edge_Eng, color_Eng, do_gamma):
+    """Combine structure-detection map and color-ranking map
+    Parameters
+    ----------
+    edge_Eng : structure-detection map.
+    color_Eng : color-ranking map.
+    do_gamma (bool) : conduct gamma transformation on structure-detection map.
+
+    Returns
+    -------
+    combine_Eng : combined map.
+    """
     
     if do_gamma == True:
         gamma = 0.4
@@ -256,6 +320,7 @@ def combineEnergy(edge_Eng, color_Eng, do_gamma):
     combine_Eng = combine_Eng * (255/max_val)
 
     return combine_Eng
+
 
 if __name__ == "__main__":
 
