@@ -7,6 +7,7 @@ Support functions
 from matplotlib import pyplot as plt
 import cv2
 
+
 def RGBHistogram(img):
     """
     Plot histogram of RGB values.
@@ -20,6 +21,7 @@ def RGBHistogram(img):
     plt.show()
         
     return
+
 
 def plotRGBSpace(img):
     """
@@ -46,18 +48,9 @@ def plotRGBSpace(img):
     
     return
 
+
 def plotProcess(imx, imy, energy):
-    
     plt.title("imx")
     plt.imshow(imx, cmap="gray")
-
-    # plt.subplot(222)
-    # plt.title("imy")
-    # plt.imshow(imy, cmap="gray")
-
-    # plt.subplot(223)
-    # plt.title("energy")
-    # plt.imshow(energy, cmap="gray")
-    # plt.show()
 
     return
