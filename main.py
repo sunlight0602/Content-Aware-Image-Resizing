@@ -3,17 +3,17 @@
 """
 Created on Mon Dec 14 17:14:50 2020
 
-Seam carving main process
-with feed forward
+Seam carving main process with feed forward
 *Takes time*
 
 Reference: https://zhuanlan.zhihu.com/p/38974520
 
-Adjust parameters in line31~34
-    color_div: number of divisions of color space
-    img_name: file name of target image
-    do_blur: conduct gaussian bluring on energy map
-    do_gamma: conduct gamma transform on color ranking
+Adjust parameters in line32~35
+color_div : number of divisions to divide color space.
+img_name : filename of input image.
+do_blur : do gaussian-blurring on color-ranking maps.
+do_gamma : do gamma-transform on structure-detection maps.
+
 """
 
 import os
