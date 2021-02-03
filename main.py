@@ -4,14 +4,18 @@
 Created on Mon Dec 14 17:14:50 2020
 
 Seam carving main process
-with fast forward
+with feed forward
 *Takes time*
 
 Reference: https://zhuanlan.zhihu.com/p/38974520
 
-color_div = 52, 86, 128
-adjust parameters in line28~31
+Adjust parameters in line31~34
+    color_div: number of divisions of color space
+    img_name: file name of target image
+    do_blur: conduct gaussian bluring on energy map
+    do_gamma: conduct gamma transform on color ranking
 """
+
 import os
 import cv2
 import sys
@@ -29,6 +33,7 @@ color_div = 52
 img_name = 'dolphin.jpg'
 do_blur = False
 do_gamma = True
+
 
 def minimum_seam(img, map_type):
     r, c, _ = img.shape
@@ -57,7 +62,6 @@ def minimum_seam(img, map_type):
 
     for i in range(1, r):
         for j in range(0, c):
-            # 处理图像的左侧边缘，确保我们不会索引-1
             if j == 0:
                 idx = np.argmin( M[i-1, j:j+2] )
                 backtrack[i, j] = idx + j
@@ -71,6 +75,7 @@ def minimum_seam(img, map_type):
 
     return M, backtrack
 
+
 def carve_column(img, map_type):
     """
     Carve one seam.
@@ -79,26 +84,20 @@ def carve_column(img, map_type):
 
     M, backtrack = minimum_seam(img, map_type)
 
-    # 创建一个(r,c)矩阵，填充值为True
-    # 后面会从值为False的图像中移除所有像素
     mask = np.ones((r, c), dtype=np.bool)
 
-    # 找到M的最后一行中的最小元素的位置 
     j = np.argmin(M[-1])
 
     for i in reversed(range(r)):
-        # 标记出需要删除的像素
         mask[i, j] = False
         j = backtrack[i, j]
 
-    # 因为图像有3个通道，我们将蒙版转换为3D
     mask = np.stack([mask] * 3, axis=2)
 
-    # 删除蒙版中所有标记为False的像素，
-    # 将照片大小重新调整为新图像的维度
     img = img[mask].reshape((r, c-1, 3))
 
     return img
+
 
 def crop_c(img, scale_c, map_type):
     """
@@ -107,10 +106,11 @@ def crop_c(img, scale_c, map_type):
     r, c, _ = img.shape
     new_c = int(scale_c * c)
 
-    for i in trange(c - new_c): # use range if you don't want to use tqdm
+    for i in trange(c - new_c):
         img = carve_column(img, map_type)
 
     return img
+
 
 if __name__=='__main__':
     
@@ -182,8 +182,6 @@ if __name__=='__main__':
     cv2.imwrite(fileName, labcombine)
     
     plt.show()
-    
-    # testing =========================================
     
     # RGB sobel + LAB color
     print("\nDoing RGB sobel + LAB color combine Energy...")
