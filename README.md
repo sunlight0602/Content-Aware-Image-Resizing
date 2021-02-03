@@ -1,4 +1,3 @@
-# DIP_final-project
-Final project for DIP course
+# Content-Aware-Image-Resizing
 
-line90 in main.py is the scale of resizing in horizontal direction
+*Final project for course Digital Image Processing*
